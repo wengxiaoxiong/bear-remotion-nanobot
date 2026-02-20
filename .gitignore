@@ -1,0 +1,13 @@
+node_modules
+out
+dist
+.env
+.env.local
+.DS_Store
+*.log
+public/audio
+public/assets
+*.mp3
+*.mp4
+*.mov
+*.wav

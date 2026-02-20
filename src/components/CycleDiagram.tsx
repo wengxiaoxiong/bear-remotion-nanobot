@@ -1,0 +1,221 @@
+/**
+ * Agent Loop 三节点循环图组件
+ * 三个步骤：「组装上下文」→「调 LLM」→「执行工具」形成环形
+ * 出口：「LLM 说做完了 → 退出」
+ */
+
+import React from 'react';
+import { useCurrentFrame, useVideoConfig, spring } from 'remotion';
+import { colors } from '../lib/utils';
+import { fontStack } from '../lib/fonts';
+
+const STEPS = [
+  { label: '组装上下文', sublabel: 'Build Messages', color: colors.primary },
+  { label: '调 LLM', sublabel: 'Call LLM', color: colors.accent },
+  { label: '执行工具', sublabel: 'Execute Tools', color: colors.success },
+];
+
+interface CycleDiagramProps {
+  highlightedStep?: number;
+  showExit?: boolean;
+  progress?: number;
+  animateFlow?: boolean;
+  style?: React.CSSProperties;
+}
+
+export const CycleDiagram: React.FC<CycleDiagramProps> = ({
+  highlightedStep = -1,
+  showExit = true,
+  progress = 1,
+  animateFlow = false,
+  style,
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const enterSpring = spring({
+    frame,
+    fps,
+    config: { damping: 15, stiffness: 100 },
+  });
+
+  const flowIndex = animateFlow ? Math.floor((frame / 30) % 3) : -1;
+
+  // 放大到 700x620 以填满画面
+  const W = 700;
+  const H = 620;
+  const cx = W / 2;
+  const cy = 260;
+  const radius = 200;
+  const positions = STEPS.map((_, i) => {
+    const angle = (i * 2 * Math.PI) / 3 - Math.PI / 2;
+    return {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
+    };
+  });
+
+  const nodeW = 200;
+  const nodeH = 88;
+
+  return (
+    <div
+      style={{
+        width: W,
+        height: H,
+        position: 'relative',
+        opacity: enterSpring * progress,
+        ...style,
+      }}
+    >
+      {/* SVG 连接线 */}
+      <svg
+        width={W}
+        height={H}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+      >
+        <defs>
+          <marker id="arrowhead" markerWidth="12" markerHeight="8" refX="12" refY="4" orient="auto">
+            <polygon points="0 0, 12 4, 0 8" fill={colors.textMuted} />
+          </marker>
+          <marker id="arrowhead-active" markerWidth="12" markerHeight="8" refX="12" refY="4" orient="auto">
+            <polygon points="0 0, 12 4, 0 8" fill={colors.accent} />
+          </marker>
+        </defs>
+
+        {[0, 1, 2].map((i) => {
+          const from = positions[i];
+          const to = positions[(i + 1) % 3];
+          const midX = (from.x + to.x) / 2;
+          const midY = (from.y + to.y) / 2;
+          const offsetX = (cy - midY) * 0.35;
+          const offsetY = (midX - cx) * 0.35;
+
+          return (
+            <path
+              key={i}
+              d={`M ${from.x} ${from.y} Q ${midX + offsetX} ${midY + offsetY} ${to.x} ${to.y}`}
+              fill="none"
+              stroke={colors.textDark}
+              strokeWidth={2.5}
+              strokeDasharray="8 5"
+              markerEnd="url(#arrowhead)"
+            />
+          );
+        })}
+
+        <circle
+          cx={cx}
+          cy={cy}
+          r={radius + 24}
+          fill="none"
+          stroke={colors.accent}
+          strokeOpacity={0.28}
+          strokeWidth={2}
+          strokeDasharray="9 7"
+        />
+
+        {showExit && (
+          <line
+            x1={positions[1].x + nodeW / 2 + 10}
+            y1={positions[1].y}
+            x2={positions[1].x + nodeW / 2 + 120}
+            y2={positions[1].y}
+            stroke={colors.success}
+            strokeWidth={3}
+            markerEnd="url(#arrowhead)"
+          />
+        )}
+      </svg>
+
+      {/* 三个节点 */}
+      {STEPS.map((step, i) => {
+        const pos = positions[i];
+        const isHighlighted = i === highlightedStep;
+        const isFlowingNode = animateFlow && flowIndex === i;
+        const nodeOpacity = highlightedStep >= 0 && !isHighlighted ? 0.4 : 1;
+        const nodeGlow = isFlowingNode
+          ? 22 + Math.sin(frame * 0.2) * 10
+          : 0;
+        const nodeScale = isFlowingNode
+          ? 1.03 + Math.sin(frame * 0.2) * 0.02
+          : 1;
+        const borderColor = isHighlighted || isFlowingNode
+          ? step.color
+          : colors.border;
+        const bgColor = isHighlighted || isFlowingNode
+          ? `${step.color}25`
+          : 'rgba(22, 22, 42, 0.9)';
+        const titleColor = isHighlighted || isFlowingNode
+          ? step.color
+          : colors.text;
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: pos.x - nodeW / 2,
+              top: pos.y - nodeH / 2,
+              width: nodeW,
+              height: nodeH,
+              borderRadius: 14,
+              backgroundColor: bgColor,
+              border: `2px solid ${borderColor}`,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: nodeOpacity,
+              boxShadow: isHighlighted || isFlowingNode
+                ? `0 0 ${nodeGlow}px ${step.color}55`
+                : 'none',
+              transform: `scale(${nodeScale})`,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                color: titleColor,
+                fontFamily: fontStack,
+              }}
+            >
+              {step.label}
+            </div>
+            <div
+              style={{
+                fontSize: 16,
+                color: colors.textDark,
+                fontFamily: fontStack,
+                marginTop: 2,
+              }}
+            >
+              {step.sublabel}
+            </div>
+          </div>
+        );
+      })}
+
+      {/* 退出标签 */}
+      {showExit && (
+        <div
+          style={{
+            position: 'absolute',
+            left: positions[1].x + nodeW / 2 + 130,
+            top: positions[1].y - 28,
+            fontSize: 20,
+            color: colors.success,
+            fontFamily: fontStack,
+            whiteSpace: 'nowrap',
+            fontWeight: 600,
+          }}
+        >
+          做完了
+          <br />
+          → 退出循环
+        </div>
+      )}
+    </div>
+  );
+};
