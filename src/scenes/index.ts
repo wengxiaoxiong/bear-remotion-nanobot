@@ -10,3 +10,15 @@ export { Scene05ContextQuestion } from './Scene05-ContextQuestion';
 export { Scene06ContextAssembly } from './Scene06-ContextAssembly';
 export { Scene11AgentLoopTitle } from './Scene11-AgentLoopTitle';
 export { Scene12AgentLoopBreakdown } from './Scene12-AgentLoopBreakdown';
+
+export { Scene18ToolsWhere } from './Scene18-ToolsWhere';
+export { Scene19OSLevelVsCloud } from './Scene19-OSLevelVsCloud';
+export { Scene21ToolsShowcase } from './Scene21-ToolsShowcase';
+export { Scene22DeliveryNotChat } from './Scene22-DeliveryNotChat';
+export { Scene23CaseIntro } from './Scene23-CaseIntro';
+export { Scene24ContextWithMemory } from './Scene24-ContextWithMemory';
+export { Scene26SevenRounds } from './Scene26-SevenRounds';
+export { Scene33CaseReview } from './Scene33-CaseReview';
+export { Scene34ArchitectureSummary } from './Scene34-ArchitectureSummary';
+export { Scene35OSLevelValue } from './Scene35-OSLevelValue';
+export { Scene36NextEpisode } from './Scene36-NextEpisode';

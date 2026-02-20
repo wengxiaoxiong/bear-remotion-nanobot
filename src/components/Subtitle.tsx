@@ -6,7 +6,6 @@ import React from 'react';
 import { useCurrentFrame, interpolate } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontFamily } from '../lib/fonts';
-import type { SubtitleSegment } from '../lib/subtitleSegments';
 
 interface SubtitleProps {
   text: string;
