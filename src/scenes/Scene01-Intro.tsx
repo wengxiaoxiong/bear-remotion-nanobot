@@ -4,32 +4,61 @@
  */
 
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import { AbsoluteFill, Easing, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
+import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
 
 export const Scene01Intro: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const avatarSpring = spring({
-    frame,
+    frame: frame - 0,
     fps,
-    config: { damping: 15, stiffness: 120 },
+    config: SPRING_PRESETS.emphasis,
   });
 
-  const titleSpring = spring({
-    frame: frame - 15,
-    fps,
-    config: { damping: 15, stiffness: 120 },
-  });
-
-  const subtitleOpacity = interpolate(frame, [30, 45], [0, 1], {
+  const titleProgress = interpolate(frame, [10, 10 + MOTION_DURATION.enterSlow], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
   });
 
-  const bottomOpacity = interpolate(frame, [50, 65], [0, 1], {
+  const subtitleOpacity = interpolate(
+    frame,
+    [10 + MOTION_STAGGER.lg, 10 + MOTION_STAGGER.lg + MOTION_DURATION.enterNormal],
+    [0, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
+  );
+
+  const bottomOpacity = interpolate(
+    frame,
+    [10 + MOTION_STAGGER.lg * 2, 10 + MOTION_STAGGER.lg * 2 + MOTION_DURATION.enterNormal],
+    [0, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.cubic),
+    },
+  );
+
+  const subtitleY = Math.round((1 - subtitleOpacity) * 12);
+  const bottomY = Math.round((1 - bottomOpacity) * 10);
+  // Delay and soften camera drift to avoid opening jitter.
+  const cameraDriftGate = interpolate(frame, [36, 72], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
+  });
+  const cameraX = Math.sin(frame * 0.018) * 1.2 * cameraDriftGate;
+  const cameraY = Math.cos(frame * 0.015) * 0.8 * cameraDriftGate;
+  const titleY = Math.round((1 - titleProgress) * 18);
+  const avatarScale = interpolate(avatarSpring, [0, 0.85, 1], [0.82, 1.02, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -44,6 +73,7 @@ export const Scene01Intro: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 40,
+        transform: `translate3d(${cameraX}px, ${cameraY}px, 0)`,
       }}
     >
       {/* 头像 */}
@@ -57,7 +87,7 @@ export const Scene01Intro: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           opacity: avatarSpring,
-          transform: `scale(${0.5 + avatarSpring * 0.5})`,
+          transform: `translate3d(0, 0, 0) scale(${avatarScale})`,
           boxShadow: `0 0 50px ${colors.primary}40`,
         }}
       >
@@ -67,8 +97,8 @@ export const Scene01Intro: React.FC = () => {
       {/* 系列标题 */}
       <div
         style={{
-          opacity: titleSpring,
-          transform: `translateY(${(1 - titleSpring) * 20}px)`,
+          opacity: titleProgress,
+          transform: `translate3d(0, ${titleY}px, 0)`,
           textAlign: 'center',
         }}
       >
@@ -90,6 +120,7 @@ export const Scene01Intro: React.FC = () => {
       <div
         style={{
           opacity: subtitleOpacity,
+          transform: `translate3d(0, ${subtitleY}px, 0)`,
           display: 'flex',
           alignItems: 'center',
           gap: 24,
@@ -124,6 +155,7 @@ export const Scene01Intro: React.FC = () => {
           position: 'absolute',
           bottom: 100,
           opacity: bottomOpacity,
+          transform: `translate3d(0, ${bottomY}px, 0)`,
           fontSize: 28,
           color: colors.textDark,
           letterSpacing: 4,

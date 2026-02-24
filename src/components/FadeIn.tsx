@@ -3,55 +3,61 @@
  */
 
 import React from 'react';
-import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import { useCurrentFrame, interpolate } from 'remotion';
+import { MOTION_DURATION, MOTION_EASING, MOTION_OFFSET } from '../lib/motion';
 
 interface FadeInProps {
   children: React.ReactNode;
   delay?: number;
+  duration?: number;
+  easing?: ((input: number) => number) | undefined;
   direction?: 'up' | 'down' | 'left' | 'right' | 'none';
   distance?: number;
+  blurFrom?: number;
   style?: React.CSSProperties;
 }
 
 export const FadeIn: React.FC<FadeInProps> = ({
   children,
   delay = 0,
+  duration = MOTION_DURATION.enterNormal,
+  easing = MOTION_EASING.standard,
   direction = 'up',
-  distance = 30,
+  distance = MOTION_OFFSET.yLg,
+  blurFrom = 6,
   style,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  
-  const springValue = spring({
-    frame: frame - delay,
-    fps,
-    config: { damping: 15, stiffness: 150 },
+
+  const progress = interpolate(frame, [delay, delay + duration], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing,
   });
-  
-  const opacity = interpolate(
-    springValue,
-    [0, 1],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
-  );
-  
-  const getTranslate = () => {
-    const d = distance * (1 - springValue);
+
+  const getTransform = () => {
+    const d = Math.round(distance * (1 - progress));
     switch (direction) {
-      case 'up': return `translateY(${d}px)`;
-      case 'down': return `translateY(-${d}px)`;
-      case 'left': return `translateX(${d}px)`;
-      case 'right': return `translateX(-${d}px)`;
-      default: return 'none';
+      case 'up':
+        return `translate3d(0, ${d}px, 0)`;
+      case 'down':
+        return `translate3d(0, ${-d}px, 0)`;
+      case 'left':
+        return `translate3d(${d}px, 0, 0)`;
+      case 'right':
+        return `translate3d(${-d}px, 0, 0)`;
+      default:
+        return 'translate3d(0, 0, 0)';
     }
   };
 
   return (
     <div
       style={{
-        opacity,
-        transform: getTranslate(),
+        opacity: progress,
+        transform: getTransform(),
+        filter: `blur(${((1 - progress) * blurFrom).toFixed(2)}px)`,
+        willChange: 'opacity, transform, filter',
         ...style,
       }}
     >

@@ -7,6 +7,7 @@ import React from 'react';
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
+import { MOTION_DURATION, MOTION_EASING, SPRING_PRESETS } from '../lib/motion';
 
 interface ToolCallBoxProps {
   toolName: string;
@@ -33,13 +34,14 @@ export const ToolCallBox: React.FC<ToolCallBoxProps> = ({
   const enterSpring = spring({
     frame: frame - enterDelay,
     fps,
-    config: { damping: 15, stiffness: 150 },
+    config: SPRING_PRESETS.soft,
   });
 
   const resultOpacity = showResult
-    ? interpolate(frame, [enterDelay + 20, enterDelay + 35], [0, 1], {
+    ? interpolate(frame, [enterDelay + 20, enterDelay + 20 + MOTION_DURATION.enterFast], [0, 1], {
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
+        easing: MOTION_EASING.standard,
       })
     : 0;
 
@@ -59,7 +61,8 @@ export const ToolCallBox: React.FC<ToolCallBoxProps> = ({
         padding: '24px 28px',
         fontFamily: "'Fira Code', monospace",
         opacity: enterSpring,
-        transform: `translateY(${(1 - enterSpring) * 20}px)`,
+        transform: `translate3d(0, ${Math.round((1 - enterSpring) * 14)}px, 0)`,
+        willChange: 'opacity, transform',
         ...style,
       }}
     >

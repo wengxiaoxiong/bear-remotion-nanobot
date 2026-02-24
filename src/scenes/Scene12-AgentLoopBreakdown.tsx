@@ -27,6 +27,7 @@ import { CodeBlock } from '../components/CodeBlock';
 import { ToolCallBox } from '../components/ToolCallBox';
 import { BranchNode } from '../components/BranchNode';
 import { ComparisonPanel } from '../components/ComparisonPanel';
+import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
 
 const AGENT_LOOP_CODE = `async function agent_loop(messages, tools):
   while iteration < max_iterations:
@@ -57,7 +58,7 @@ const TOOL_LABELS_ZH: Record<string, string> = {
   message: '发送消息',
   delegate: '委派子任务',
 };
-const PHASE_OVERLAP = 24;
+const PHASE_OVERLAP = MOTION_DURATION.enterNormal;
 
 export const Scene12AgentLoopBreakdown: React.FC = () => {
   const frame = useCurrentFrame();
@@ -156,15 +157,17 @@ const PhaseMotion: React.FC<{
   const enterProgress = interpolate(frame, [0, 18], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
   });
   const exitProgress = interpolate(frame, [durationInFrames - PHASE_OVERLAP, durationInFrames], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
+    easing: MOTION_EASING.exit,
   });
 
   const opacity = Math.min(enterProgress, 1 - exitProgress);
-  const translateX = (1 - enterProgress) * enterFromX + exitProgress * exitToX;
-  const translateY = (1 - enterProgress) * 8 - exitProgress * 6;
+  const translateX = Math.round((1 - enterProgress) * enterFromX + exitProgress * exitToX);
+  const translateY = Math.round((1 - enterProgress) * 8 - exitProgress * 6);
 
   return (
     <div
@@ -185,9 +188,9 @@ const Phase1SendToLLM: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const step1Spring = spring({ frame, fps, config: { damping: 15, stiffness: 120 } });
-  const step2Spring = spring({ frame: frame - 30, fps, config: { damping: 15, stiffness: 120 } });
-  const step3Spring = spring({ frame: frame - 60, fps, config: { damping: 15, stiffness: 120 } });
+  const step1Spring = spring({ frame, fps, config: SPRING_PRESETS.soft });
+  const step2Spring = spring({ frame: frame - (MOTION_STAGGER.lg + 16), fps, config: SPRING_PRESETS.soft });
+  const step3Spring = spring({ frame: frame - (MOTION_STAGGER.lg * 2 + 20), fps, config: SPRING_PRESETS.soft });
 
   return (
     <AbsoluteFill
@@ -355,8 +358,8 @@ const Phase3ToolsExplained: React.FC = () => {
           </div>
           {TOOL_LIST.map((tool, i) => {
             const toolOpacity = interpolate(
-              frame, [10 + i * 6, 18 + i * 6], [0, 1],
-              { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+              frame, [10 + i * MOTION_STAGGER.sm, 10 + i * MOTION_STAGGER.sm + MOTION_DURATION.enterFast], [0, 1],
+              { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: MOTION_EASING.standard },
             );
             return (
               <div
@@ -509,11 +512,11 @@ const Phase5LoopBack: React.FC = () => {
   const frame = useCurrentFrame();
 
   const loopProgress = interpolate(frame, [0, 90], [0, 1], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+    extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: MOTION_EASING.standard,
   });
 
-  const rotation = interpolate(frame, [10, 100], [0, 360], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+  const rotation = interpolate(frame, [10, 82], [0, 300], {
+    extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: MOTION_EASING.standard,
   });
 
   return (
@@ -626,7 +629,7 @@ const FlowBox: React.FC<{
   <div
     style={{
       opacity,
-      transform: `translateY(${(1 - opacity) * 15}px)`,
+      transform: `translate3d(0, ${Math.round((1 - opacity) * 12)}px, 0)`,
       padding: '20px 32px',
       backgroundColor: `${color}12`,
       border: `1px solid ${color}40`,

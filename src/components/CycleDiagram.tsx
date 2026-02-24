@@ -8,6 +8,7 @@ import React from 'react';
 import { useCurrentFrame, useVideoConfig, spring } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
+import { SPRING_PRESETS } from '../lib/motion';
 
 const STEPS = [
   { label: '组装上下文', sublabel: 'Build Messages', color: colors.primary },
@@ -36,10 +37,10 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
   const enterSpring = spring({
     frame,
     fps,
-    config: { damping: 15, stiffness: 100 },
+    config: SPRING_PRESETS.soft,
   });
 
-  const flowIndex = animateFlow ? Math.floor((frame / 30) % 3) : -1;
+  const flowIndex = animateFlow ? Math.floor((frame / 36) % 3) : -1;
 
   // 放大到 700x620 以填满画面
   const W = 700;
@@ -133,12 +134,12 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
         const pos = positions[i];
         const isHighlighted = i === highlightedStep;
         const isFlowingNode = animateFlow && flowIndex === i;
-        const nodeOpacity = highlightedStep >= 0 && !isHighlighted ? 0.4 : 1;
+        const nodeOpacity = highlightedStep >= 0 && !isHighlighted ? 0.5 : 1;
         const nodeGlow = isFlowingNode
-          ? 22 + Math.sin(frame * 0.2) * 10
+          ? 18 + Math.sin(frame * 0.14) * 7
           : 0;
         const nodeScale = isFlowingNode
-          ? 1.03 + Math.sin(frame * 0.2) * 0.02
+          ? 1.02 + Math.sin(frame * 0.14) * 0.015
           : 1;
         const borderColor = isHighlighted || isFlowingNode
           ? step.color

@@ -9,6 +9,7 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
+import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
 
 const KEYWORDS = [
   { text: '本地文件', color: colors.primary, icon: '📁' },
@@ -24,12 +25,18 @@ export const Scene03Title: React.FC = () => {
   const titleSpring = spring({
     frame,
     fps,
-    config: { damping: 12, stiffness: 150 },
+    config: SPRING_PRESETS.soft,
   });
-
-  const quoteOpacity = interpolate(frame, [80, 100], [0, 1], {
+  const titleOpacity = interpolate(frame, [0, MOTION_DURATION.enterNormal], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
+  });
+
+  const quoteOpacity = interpolate(frame, [84, 104], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
   });
 
   return (
@@ -47,8 +54,8 @@ export const Scene03Title: React.FC = () => {
       {/* 主标题 */}
       <div
         style={{
-          opacity: titleSpring,
-          transform: `scale(${0.8 + titleSpring * 0.2})`,
+          opacity: titleOpacity,
+          transform: `translate3d(0, 0, 0) scale(${interpolate(titleSpring, [0, 0.9, 1], [0.9, 1.015, 1])})`,
         }}
       >
         <h1
@@ -73,23 +80,31 @@ export const Scene03Title: React.FC = () => {
         {KEYWORDS.map((kw, i) => {
           const kwOpacity = interpolate(
             frame,
-            [20 + i * 10, 30 + i * 10],
+            [20 + i * MOTION_STAGGER.md, 20 + i * MOTION_STAGGER.md + MOTION_DURATION.enterFast],
             [0, 1],
-            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+            {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+              easing: MOTION_EASING.standard,
+            },
           );
-          const kwTranslateY = interpolate(
+          const kwTranslateY = Math.round(interpolate(
             frame,
-            [20 + i * 10, 30 + i * 10],
+            [20 + i * MOTION_STAGGER.md, 20 + i * MOTION_STAGGER.md + MOTION_DURATION.enterFast],
             [20, 0],
-            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-          );
+            {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+              easing: MOTION_EASING.standard,
+            },
+          ));
 
           return (
             <div
               key={i}
               style={{
                 opacity: kwOpacity,
-                transform: `translateY(${kwTranslateY}px)`,
+                transform: `translate3d(0, ${kwTranslateY}px, 0)`,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',

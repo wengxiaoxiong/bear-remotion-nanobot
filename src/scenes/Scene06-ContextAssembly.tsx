@@ -23,6 +23,7 @@ import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { SCENE06_TIMELINE } from '../lib/durations';
 import { CodeBlock } from '../components/CodeBlock';
+import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
 
 // 四层配置
 const LAYERS = [
@@ -84,7 +85,11 @@ export const Scene06ContextAssembly: React.FC = () => {
     frame,
     [0, T.skillsEnd],
     [150, 10],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
   );
 
   // 合并阶段：压缩间距
@@ -92,35 +97,55 @@ export const Scene06ContextAssembly: React.FC = () => {
     frame,
     [T.mergeStart, T.mergeEnd],
     [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
   );
 
   // 代码块阶段
   const codeOpacity = interpolate(
     frame,
-    [T.codeStart - 10, T.codeStart + 35],
+    [T.codeStart - MOTION_STAGGER.sm, T.codeStart + MOTION_DURATION.enterSlow],
     [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
   );
   const codeShiftX = interpolate(
     frame,
-    [T.codeStart - 10, T.codeStart + 35],
+    [T.codeStart - MOTION_STAGGER.sm, T.codeStart + MOTION_DURATION.enterSlow],
     [90, 0],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
   );
 
   // 合并后追加项的透明度
   const appendOpacity = interpolate(
     frame,
-    [T.mergeStart + 20, T.mergeStart + 90],
+    [T.mergeStart + MOTION_STAGGER.lg, T.mergeStart + MOTION_STAGGER.lg + 70],
     [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
   );
   const appendY = interpolate(
     frame,
-    [T.mergeStart + 20, T.mergeStart + 90],
+    [T.mergeStart + MOTION_STAGGER.lg, T.mergeStart + MOTION_STAGGER.lg + 70],
     [18, 0],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: MOTION_EASING.standard,
+    },
   );
   const stackWidth = interpolate(
     frame,
@@ -242,7 +267,7 @@ export const Scene06ContextAssembly: React.FC = () => {
               opacity: codeOpacity,
               width: 680,
               flexShrink: 0,
-              transform: `translateX(${codeShiftX}px)`,
+              transform: `translate3d(${Math.round(codeShiftX)}px, 0, 0)`,
             }}
           >
             <div
@@ -291,7 +316,7 @@ const LayerBlock: React.FC<{
   const layerSpring = spring({
     frame: frame - enterFrame,
     fps,
-    config: { damping: 15, stiffness: 120 },
+    config: SPRING_PRESETS.soft,
   });
 
   const isActive = frame >= enterFrame;
@@ -327,7 +352,7 @@ const LayerBlock: React.FC<{
         borderRadius: 8,
         padding: `${interpolate(clampedCompact, [0, 1], [20, 8])}px ${interpolate(clampedCompact, [0, 1], [28, 18])}px`,
         opacity: layerOpacity,
-        transform: `translateY(${(1 - layerSpring) * 30}px)`,
+        transform: `translate3d(0, ${Math.round((1 - layerSpring) * 20)}px, 0)`,
       }}
     >
       {/* 标题 */}
@@ -355,11 +380,16 @@ const LayerBlock: React.FC<{
       {/* 详情标签 */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, opacity: bodyOpacity, maxHeight: bodyHeight, overflow: 'hidden' }}>
         {layer.details.map((detail, j) => {
+          const detailGroupDelay = Math.floor(j / 2) * MOTION_STAGGER.sm + (j % 2) * 3;
           const detailOpacity = interpolate(
             frame,
-            [enterFrame + 20 + j * 8, enterFrame + 30 + j * 8],
+            [enterFrame + 20 + detailGroupDelay, enterFrame + 20 + detailGroupDelay + MOTION_DURATION.enterFast],
             [0, 1],
-            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+            {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+              easing: MOTION_EASING.standard,
+            },
           );
           return (
             <span
@@ -374,7 +404,7 @@ const LayerBlock: React.FC<{
                 borderRadius: 4,
                 fontFamily: fontStack,
                 opacity: detailOpacity,
-                transform: `translateY(${(1 - detailOpacity) * 8}px)`,
+                transform: `translate3d(0, ${Math.round((1 - detailOpacity) * 8)}px, 0)`,
               }}
             >
               {detail}
@@ -387,17 +417,26 @@ const LayerBlock: React.FC<{
       {'files' in layer && layer.files && (
         <div style={{ display: 'flex', gap: 12, marginTop: 10, opacity: bodyOpacity, maxHeight: bodyHeight, overflow: 'hidden' }}>
           {layer.files.map((file, j) => {
+            const fileGroupDelay = Math.floor(j / 2) * MOTION_STAGGER.sm + (j % 2) * 3;
             const fileOpacity = interpolate(
               frame,
-              [enterFrame + 40 + j * 12, enterFrame + 55 + j * 12],
+              [enterFrame + 40 + fileGroupDelay, enterFrame + 40 + fileGroupDelay + MOTION_DURATION.enterNormal],
               [0, 1],
-              { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+              {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+                easing: MOTION_EASING.standard,
+              },
             );
             const fileX = interpolate(
               frame,
-              [enterFrame + 40 + j * 12, enterFrame + 55 + j * 12],
+              [enterFrame + 40 + fileGroupDelay, enterFrame + 40 + fileGroupDelay + MOTION_DURATION.enterNormal],
               [-30, 0],
-              { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+              {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+                easing: MOTION_EASING.standard,
+              },
             );
             return (
               <div
@@ -413,7 +452,7 @@ const LayerBlock: React.FC<{
                   color: layer.color,
                   fontFamily: "'Fira Code', monospace",
                   opacity: fileOpacity,
-                  transform: `translateX(${fileX}px)`,
+                  transform: `translate3d(${Math.round(fileX)}px, 0, 0)`,
                 }}
               >
                 📄 {file}

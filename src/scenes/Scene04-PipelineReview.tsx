@@ -13,21 +13,24 @@ import { fontStack } from '../lib/fonts';
 import { PipelineDiagram } from '../components/PipelineDiagram';
 import { CycleDiagram } from '../components/CycleDiagram';
 import { FadeIn } from '../components/FadeIn';
+import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
 
 export const Scene04PipelineReview: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const cycleSpring = spring({
-    frame: frame - 20,
+    frame: frame - (10 + MOTION_STAGGER.md),
     fps,
-    config: { damping: 15, stiffness: 100 },
+    config: SPRING_PRESETS.soft,
   });
 
-  const arrowOpacity = interpolate(frame, [15, 30], [0, 1], {
+  const arrowOpacity = interpolate(frame, [15, 15 + MOTION_DURATION.enterNormal], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
   });
+  const arrowY = Math.round((1 - arrowOpacity) * 12);
 
   return (
     <AbsoluteFill
@@ -46,7 +49,7 @@ export const Scene04PipelineReview: React.FC = () => {
           textAlign: 'center',
         }}
       >
-        <FadeIn>
+        <FadeIn delay={0} duration={MOTION_DURATION.enterNormal}>
           <span style={{ fontSize: 28, color: colors.textDark }}>Part 1A</span>
           <h2
             style={{
@@ -90,6 +93,7 @@ export const Scene04PipelineReview: React.FC = () => {
             alignItems: 'center',
             gap: 10,
             opacity: arrowOpacity,
+            transform: `translate3d(0, ${arrowY}px, 0)`,
           }}
         >
           <div
@@ -108,7 +112,7 @@ export const Scene04PipelineReview: React.FC = () => {
         <div
           style={{
             opacity: cycleSpring,
-            transform: `translateX(${(1 - cycleSpring) * 30}px)`,
+            transform: `translate3d(${Math.round((1 - cycleSpring) * 24)}px, 0, 0)`,
             flexShrink: 0,
           }}
         >
@@ -121,7 +125,7 @@ export const Scene04PipelineReview: React.FC = () => {
         </div>
       </div>
 
-      <FadeIn delay={25} direction="up">
+      <FadeIn delay={25} duration={MOTION_DURATION.enterNormal} direction="up">
         <div
           style={{
             position: 'absolute',

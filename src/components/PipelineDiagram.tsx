@@ -7,6 +7,7 @@ import React from 'react';
 import { useCurrentFrame, useVideoConfig, spring } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
+import { SPRING_PRESETS } from '../lib/motion';
 
 const PIPELINE_LAYERS = [
   { label: '消息接收', sublabel: 'Telegram / 飞书', color: colors.info },
@@ -35,7 +36,7 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
   const enterProgress = spring({
     frame,
     fps,
-    config: { damping: 15, stiffness: 100 },
+    config: SPRING_PRESETS.soft,
   });
 
   return (
@@ -53,13 +54,13 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
       {PIPELINE_LAYERS.map((layer, i) => {
         const isHighlighted = i === highlightedLayer;
         const isPulsing = i === pulseLayer;
-        const layerOpacity = highlightedLayer >= 0 && !isHighlighted ? 0.3 : 1;
+        const layerOpacity = highlightedLayer >= 0 && !isHighlighted ? 0.45 : 1;
 
         const pulseScale = isPulsing
-          ? 1 + Math.sin(frame * 0.12) * 0.03
+          ? 1 + Math.sin(frame * 0.09) * 0.025
           : 1;
         const pulseGlow = isPulsing
-          ? 8 + Math.sin(frame * 0.12) * 8
+          ? 8 + Math.sin(frame * 0.09) * 6
           : 0;
 
         return (
