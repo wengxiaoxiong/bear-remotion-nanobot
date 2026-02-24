@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring, Easing } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { FadeIn } from '../components/FadeIn';
@@ -108,11 +108,18 @@ export const Scene05ContextQuestion: React.FC = () => {
               Workspace 文件树
             </div>
             {FILE_TREE.map((item, i) => {
+              const itemDelay = 15 + i * 4;
               const itemOpacity = interpolate(
                 frame,
-                [15 + i * 3, 20 + i * 3],
+                [itemDelay, itemDelay + 8],
                 [0, 1],
                 { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+              );
+              const itemX = interpolate(
+                frame,
+                [itemDelay, itemDelay + 8],
+                [-20, 0],
+                { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic) },
               );
               return (
                 <div
@@ -124,6 +131,7 @@ export const Scene05ContextQuestion: React.FC = () => {
                     color: item.isDir ? colors.primaryLight : colors.text,
                     fontFamily: "'Fira Code', monospace",
                     opacity: itemOpacity,
+                    transform: `translate3d(${itemX}px, 0, 0)`,
                   }}
                 >
                   <span style={{ marginRight: 10 }}>
@@ -145,7 +153,12 @@ export const Scene05ContextQuestion: React.FC = () => {
               marginTop: 170,
             }}
           >
-            <span style={{ color: colors.accent, fontSize: 60 }}>→</span>
+            <span style={{ 
+              color: colors.accent, 
+              fontSize: 60,
+              opacity: 0.7 + Math.sin(frame * 0.1) * 0.3,
+              transform: `scale(${1 + Math.sin(frame * 0.08) * 0.05})`,
+            }}>→</span>
           </div>
         </FadeIn>
 
