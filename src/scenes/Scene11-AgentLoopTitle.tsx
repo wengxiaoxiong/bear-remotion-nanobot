@@ -26,6 +26,10 @@ export const Scene11AgentLoopTitle: React.FC = () => {
   });
 
   const glowIntensity = Math.sin(frame * 0.08) * 0.5 + 0.5;
+  
+  // Multiple breathing rings for depth
+  const ringBreathing1 = 1 + Math.sin(frame * 0.05) * 0.02;
+  const ringBreathing2 = 1 + Math.sin(frame * 0.05 + 1) * 0.015;
 
   return (
     <AbsoluteFill
