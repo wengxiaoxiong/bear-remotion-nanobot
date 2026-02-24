@@ -6,10 +6,19 @@
  */
 
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring, Easing } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
-import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
+import {
+  LAYOUT_BANDS,
+  LAYOUT_GAP,
+  LAYOUT_SAFE_MARGIN,
+  MOTION_DURATION,
+  MOTION_EASING,
+  MOTION_STAGGER,
+  SPRING_PRESETS,
+  TEXT_CONTRAST_PRESETS,
+} from '../lib/motion';
 
 const KEYWORDS = [
   { text: '本地文件', color: colors.primary, icon: '📁' },
@@ -33,11 +42,21 @@ export const Scene03Title: React.FC = () => {
     easing: MOTION_EASING.standard,
   });
 
-  const quoteOpacity = interpolate(frame, [84, 104], [0, 1], {
+  const quoteOpacity = interpolate(frame, [74, 96], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: MOTION_EASING.standard,
   });
+  const breatheGate = interpolate(frame, [70, 86], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: MOTION_EASING.standard,
+  });
+
+  // Arrow breathing animation
+  const arrowOpacity1 = interpolate(frame % 90, [0, 30, 60, 90], [0.4, 1, 0.4, 0.4], { extrapolateRight: 'loop' });
+  const arrowOpacity2 = interpolate((frame + 30) % 90, [0, 30, 60, 90], [0.4, 1, 0.4, 0.4], { extrapolateRight: 'loop' });
+  const arrowOpacity3 = interpolate((frame + 60) % 90, [0, 30, 60, 90], [0.4, 1, 0.4, 0.4], { extrapolateRight: 'loop' });
 
   return (
     <AbsoluteFill
@@ -47,8 +66,9 @@ export const Scene03Title: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 60,
+        justifyContent: 'flex-start',
+        paddingTop: LAYOUT_BANDS.top.top + 10,
+        gap: LAYOUT_GAP.xl,
       }}
     >
       {/* 主标题 */}
@@ -69,18 +89,27 @@ export const Scene03Title: React.FC = () => {
           }}
         >
           想{' '}
-          <span style={{ color: colors.primary }}>→</span> 做{' '}
-          <span style={{ color: colors.accent }}>→</span> 看{' '}
-          <span style={{ color: colors.warning }}>→</span> 再想
+          <span style={{ color: colors.primary, opacity: arrowOpacity1 }}>→</span> 做{' '}
+          <span style={{ color: colors.accent, opacity: arrowOpacity2 }}>→</span> 看{' '}
+          <span style={{ color: colors.warning, opacity: arrowOpacity3 }}>→</span> 再想
         </h1>
       </div>
 
       {/* 四个关键词 */}
-      <div style={{ display: 'flex', gap: 36 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: LAYOUT_GAP.md,
+          justifyContent: 'space-between',
+          width: `calc(100% - ${LAYOUT_SAFE_MARGIN.x * 2}px)`,
+          maxWidth: 1260,
+          padding: `0 ${LAYOUT_GAP.sm}px`,
+        }}
+      >
         {KEYWORDS.map((kw, i) => {
           const kwOpacity = interpolate(
             frame,
-            [20 + i * MOTION_STAGGER.md, 20 + i * MOTION_STAGGER.md + MOTION_DURATION.enterFast],
+            [20 + i * MOTION_STAGGER.lg, 20 + i * MOTION_STAGGER.lg + MOTION_DURATION.enterNormal],
             [0, 1],
             {
               extrapolateLeft: 'clamp',
@@ -90,21 +119,32 @@ export const Scene03Title: React.FC = () => {
           );
           const kwTranslateY = Math.round(interpolate(
             frame,
-            [20 + i * MOTION_STAGGER.md, 20 + i * MOTION_STAGGER.md + MOTION_DURATION.enterFast],
-            [20, 0],
+            [20 + i * MOTION_STAGGER.lg, 20 + i * MOTION_STAGGER.lg + MOTION_DURATION.enterNormal],
+            [40, 0],
             {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
-              easing: MOTION_EASING.standard,
+              easing: Easing.out(Easing.back(1.2)),
             },
           ));
+          const kwScale = interpolate(
+            frame,
+            [20 + i * MOTION_STAGGER.lg, 20 + i * MOTION_STAGGER.lg + MOTION_DURATION.enterNormal],
+            [0.9, 1],
+            {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+              easing: Easing.out(Easing.back(1.2)),
+            },
+          );
+          const breatheScale = 1 + Math.sin(frame * 0.035 + i * 0.7) * 0.008 * breatheGate;
 
           return (
             <div
               key={i}
               style={{
                 opacity: kwOpacity,
-                transform: `translate3d(0, ${kwTranslateY}px, 0)`,
+                transform: `translate3d(0, ${kwTranslateY}px, 0) scale(${(kwScale * breatheScale).toFixed(4)})`,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -113,7 +153,8 @@ export const Scene03Title: React.FC = () => {
                 backgroundColor: `${kw.color}12`,
                 border: `1px solid ${kw.color}40`,
                 borderRadius: 16,
-                minWidth: 180,
+                minWidth: 0,
+                width: 260,
               }}
             >
               <span style={{ fontSize: 40 }}>{kw.icon}</span>
@@ -136,6 +177,10 @@ export const Scene03Title: React.FC = () => {
         style={{
           opacity: quoteOpacity,
           textAlign: 'center',
+          position: 'absolute',
+          bottom: LAYOUT_BANDS.bottom.bottom,
+          width: `calc(100% - ${LAYOUT_SAFE_MARGIN.x * 2}px)`,
+          maxWidth: 1080,
         }}
       >
         <div
@@ -143,6 +188,7 @@ export const Scene03Title: React.FC = () => {
             fontSize: 34,
             color: colors.text,
             fontWeight: 600,
+            opacity: TEXT_CONTRAST_PRESETS.captionStrong.opacity,
           }}
         >
           不是{' '}

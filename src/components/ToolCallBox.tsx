@@ -16,6 +16,9 @@ interface ToolCallBoxProps {
   showResult?: boolean;
   resultStatus?: 'success' | 'error' | 'pending';
   enterDelay?: number;
+  maxWidth?: number;
+  minWidth?: number;
+  contentPadding?: string;
   style?: React.CSSProperties;
 }
 
@@ -26,6 +29,9 @@ export const ToolCallBox: React.FC<ToolCallBoxProps> = ({
   showResult = false,
   resultStatus = 'success',
   enterDelay = 0,
+  maxWidth = 720,
+  minWidth = 520,
+  contentPadding = '24px 28px',
   style,
 }) => {
   const frame = useCurrentFrame();
@@ -58,11 +64,14 @@ export const ToolCallBox: React.FC<ToolCallBoxProps> = ({
         backgroundColor: 'rgba(22, 22, 42, 0.95)',
         borderRadius: 14,
         border: `1px solid ${colors.border}`,
-        padding: '24px 28px',
+        padding: contentPadding,
         fontFamily: "'Fira Code', monospace",
         opacity: enterSpring,
         transform: `translate3d(0, ${Math.round((1 - enterSpring) * 14)}px, 0)`,
         willChange: 'opacity, transform',
+        width: '100%',
+        maxWidth,
+        minWidth,
         ...style,
       }}
     >

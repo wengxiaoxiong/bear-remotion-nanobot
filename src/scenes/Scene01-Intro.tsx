@@ -7,7 +7,16 @@ import React from 'react';
 import { AbsoluteFill, Easing, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
-import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
+import {
+  LAYOUT_BANDS,
+  LAYOUT_GAP,
+  LAYOUT_SAFE_MARGIN,
+  MOTION_DURATION,
+  MOTION_EASING,
+  MOTION_STAGGER,
+  SPRING_PRESETS,
+  TEXT_CONTRAST_PRESETS,
+} from '../lib/motion';
 
 export const Scene01Intro: React.FC = () => {
   const frame = useCurrentFrame();
@@ -63,6 +72,10 @@ export const Scene01Intro: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
+  // Apple-style breathing animation for avatar
+  const breathePhase = Math.sin(frame * 0.08) * 0.015;
+  const avatarBreathingScale = 1 + breathePhase;
+
   return (
     <AbsoluteFill
       style={{
@@ -71,11 +84,24 @@ export const Scene01Intro: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 40,
-        transform: `translate3d(${cameraX}px, ${cameraY}px, 0)`,
+        justifyContent: 'flex-start',
+        paddingTop: LAYOUT_BANDS.top.top + 26,
+        gap: LAYOUT_GAP.lg,
       }}
     >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          opacity: 0.24,
+          transform: `translate3d(${cameraX}px, ${cameraY}px, 0)`,
+          background:
+            `radial-gradient(circle at 20% 20%, ${colors.primary}18 0%, transparent 45%), ` +
+            `radial-gradient(circle at 80% 80%, ${colors.accent}16 0%, transparent 48%)`,
+        }}
+      />
+
       {/* 头像 */}
       <div
         style={{
@@ -87,7 +113,7 @@ export const Scene01Intro: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           opacity: avatarSpring,
-          transform: `translate3d(0, 0, 0) scale(${avatarScale})`,
+          transform: `translate3d(0, 0, 0) scale(${avatarScale * avatarBreathingScale})`,
           boxShadow: `0 0 50px ${colors.primary}40`,
         }}
       >
@@ -105,14 +131,20 @@ export const Scene01Intro: React.FC = () => {
         <h1
           style={{
             fontSize: 72,
-            fontWeight: 800,
+            fontWeight: 600,
             color: colors.text,
             margin: 0,
-            letterSpacing: 3,
+            letterSpacing: 2,
           }}
         >
           用1%的代码复刻{' '}
-          <span style={{ color: colors.accent }}>Clawdbot</span>
+          <span style={{ 
+            color: colors.accent,
+            fontWeight: 800,
+            background: `linear-gradient(135deg, ${colors.accent} 0%, ${colors.primary} 100%)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>Clawdbot</span>
         </h1>
       </div>
 
@@ -123,7 +155,11 @@ export const Scene01Intro: React.FC = () => {
           transform: `translate3d(0, ${subtitleY}px, 0)`,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: 24,
+          maxWidth: 1120,
+          width: `calc(100% - ${LAYOUT_SAFE_MARGIN.x * 2}px)`,
+          marginTop: LAYOUT_GAP.sm,
         }}
       >
         <div
@@ -131,7 +167,8 @@ export const Scene01Intro: React.FC = () => {
             padding: '12px 36px',
             borderRadius: 30,
             background: `linear-gradient(135deg, ${colors.primary}30, ${colors.accent}30)`,
-            border: `1px solid ${colors.primary}50`,
+            border: `1px solid ${colors.primary}70`,
+            boxShadow: `0 4px 18px ${colors.primary}22`,
           }}
         >
           <span
@@ -144,7 +181,7 @@ export const Scene01Intro: React.FC = () => {
             EP2 / 3
           </span>
         </div>
-        <span style={{ fontSize: 32, color: colors.textMuted }}>
+        <span style={{ fontSize: 32, color: colors.text, opacity: 0.9 }}>
           Agent Loop 深度拆解
         </span>
       </div>
@@ -153,12 +190,16 @@ export const Scene01Intro: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          bottom: 100,
-          opacity: bottomOpacity,
+          bottom: Math.max(LAYOUT_BANDS.bottom.bottom, LAYOUT_SAFE_MARGIN.bottom) + 40,
+          opacity: bottomOpacity * TEXT_CONTRAST_PRESETS.captionStrong.opacity,
           transform: `translate3d(0, ${bottomY}px, 0)`,
           fontSize: 28,
           color: colors.textDark,
+          fontWeight: TEXT_CONTRAST_PRESETS.captionStrong.weight,
           letterSpacing: 4,
+          maxWidth: 980,
+          width: `calc(100% - ${LAYOUT_SAFE_MARGIN.x * 2}px)`,
+          textAlign: 'center',
         }}
       >
         想 → 做 → 看 → 再想

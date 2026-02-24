@@ -23,7 +23,16 @@ import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { SCENE06_TIMELINE } from '../lib/durations';
 import { CodeBlock } from '../components/CodeBlock';
-import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
+import {
+  LAYOUT_BANDS,
+  LAYOUT_GAP,
+  LAYOUT_SAFE_MARGIN,
+  MOTION_DURATION,
+  MOTION_EASING,
+  MOTION_STAGGER,
+  SPRING_PRESETS,
+  TEXT_CONTRAST_PRESETS,
+} from '../lib/motion';
 
 // 四层配置
 const LAYERS = [
@@ -147,18 +156,20 @@ export const Scene06ContextAssembly: React.FC = () => {
       easing: MOTION_EASING.standard,
     },
   );
-  const stackWidth = interpolate(
+  const codeColumnWidth = interpolate(
     frame,
     [T.codeStart - 10, T.codeStart + 35],
-    [760, 620],
+    [0, 760],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
   const sceneGap = interpolate(
     frame,
     [T.codeStart - 10, T.codeStart + 35],
-    [0, 52],
+    [0, 36],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
+  const totalContentWidth = 1440;
+  const stackWidth = Math.max(620, totalContentWidth - codeColumnWidth - sceneGap);
 
   return (
     <AbsoluteFill
@@ -172,15 +183,16 @@ export const Scene06ContextAssembly: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          left: 58,
-          top: 48,
-          fontSize: 22,
+          left: LAYOUT_SAFE_MARGIN.x,
+          top: LAYOUT_BANDS.top.top,
+          fontSize: 20,
           color: colors.textDark,
+          opacity: 0.78,
         }}
       >
-        <span style={{ color: colors.textMuted, fontSize: 16 }}>Part 1A</span>
+        <span style={{ color: colors.textMuted, fontSize: 14 }}>Part 1A</span>
         <br />
-        <span style={{ color: colors.text, fontSize: 30, fontWeight: 700 }}>
+        <span style={{ color: colors.text, fontSize: 26, fontWeight: 650 }}>
           上下文组装
         </span>
       </div>
@@ -189,10 +201,10 @@ export const Scene06ContextAssembly: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
+          left: LAYOUT_SAFE_MARGIN.x,
+          right: LAYOUT_SAFE_MARGIN.x,
+          top: LAYOUT_BANDS.main.top,
+          bottom: LAYOUT_BANDS.main.bottom,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -203,7 +215,9 @@ export const Scene06ContextAssembly: React.FC = () => {
             display: 'flex',
             gap: sceneGap,
             alignItems: 'flex-start',
-            transform: `translateY(${stackShift}px)`,
+            transform: `translate3d(0, ${Math.round(stackShift)}px, 0)`,
+            width: totalContentWidth,
+            maxWidth: '100%',
           }}
         >
           {/* 四层堆叠 */}
@@ -211,7 +225,7 @@ export const Scene06ContextAssembly: React.FC = () => {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: mergeProgress > 0 ? interpolate(mergeProgress, [0, 1], [20, 6]) : 20,
+              gap: mergeProgress > 0 ? interpolate(mergeProgress, [0, 1], [20, 8]) : 20,
               width: stackWidth,
             }}
           >
@@ -252,7 +266,7 @@ export const Scene06ContextAssembly: React.FC = () => {
                 sublabel="session.history[-50:]"
                 color={colors.info}
               />
-              <div style={{ height: 6 }} />
+              <div style={{ height: LAYOUT_GAP.xs }} />
               <AppendItem
                 label="当前消息"
                 sublabel="current_msg"
@@ -265,7 +279,7 @@ export const Scene06ContextAssembly: React.FC = () => {
           <div
             style={{
               opacity: codeOpacity,
-              width: 680,
+              width: codeColumnWidth,
               flexShrink: 0,
               transform: `translate3d(${Math.round(codeShiftX)}px, 0, 0)`,
             }}
@@ -554,7 +568,7 @@ const ProgressIndicator: React.FC<{
     <div
       style={{
         position: 'absolute',
-        bottom: 34,
+        bottom: LAYOUT_SAFE_MARGIN.bottom - 8,
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
@@ -575,20 +589,27 @@ const ProgressIndicator: React.FC<{
           >
             <div
               style={{
-                width: 10,
-                height: 10,
+                width: isActive ? 13 : 10,
+                height: isActive ? 13 : 10,
                 borderRadius: '50%',
                 backgroundColor: isDone
-                  ? colors.accent
+                  ? `${colors.accent}DD`
                   : isActive
-                    ? colors.primary
+                    ? colors.primaryLight
                     : colors.textDark,
+                boxShadow: isActive ? `0 0 10px ${colors.primaryLight}80` : 'none',
               }}
             />
             <span
               style={{
-                fontSize: 16,
+                fontSize: isActive ? 17 : 16,
                 color: isActive ? colors.text : colors.textDark,
+                opacity: isActive
+                  ? TEXT_CONTRAST_PRESETS.captionStrong.opacity
+                  : TEXT_CONTRAST_PRESETS.captionMuted.opacity,
+                fontWeight: isActive
+                  ? TEXT_CONTRAST_PRESETS.captionStrong.weight
+                  : TEXT_CONTRAST_PRESETS.captionMuted.weight,
                 fontFamily: fontStack,
               }}
             >

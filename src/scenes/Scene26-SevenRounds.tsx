@@ -30,6 +30,7 @@ import {
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { CycleDiagram } from '../components/CycleDiagram';
+import { LAYOUT_GAP, LAYOUT_SAFE_MARGIN } from '../lib/motion';
 
 const TIMELINE = {
   round1Start: 0,
@@ -181,18 +182,31 @@ export const Scene26SevenRounds: React.FC = () => {
         }}
       />
 
-      {/* 左侧区域 */}
-      <LeftPanel frame={frame} fps={fps} activeRound={activeRound} timeline={T} />
-
-      {/* 右侧区域 */}
-      <RightPanel
+      {/* 主内容区：左右并排紧凑布局 */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          paddingTop: LAYOUT_SAFE_MARGIN.top,
+          paddingBottom: LAYOUT_SAFE_MARGIN.bottom,
+          paddingLeft: LAYOUT_SAFE_MARGIN.x,
+          paddingRight: LAYOUT_SAFE_MARGIN.x,
+          display: 'flex',
+          flexDirection: 'row',
+          gap: LAYOUT_GAP.md,
+          alignItems: 'stretch',
+        }}
+      >
+        <LeftPanel frame={frame} fps={fps} activeRound={activeRound} timeline={T} />
+        <RightPanel
         frame={frame}
         fps={fps}
         round={roundData}
         activeRound={activeRound}
         isComparisonRound={isComparisonRound}
         timeline={T}
-      />
+        />
+      </div>
 
       {/* 总结阶段 */}
       {frame >= T.summaryStart && (
@@ -203,9 +217,9 @@ export const Scene26SevenRounds: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          top: 30,
-          left: 60,
-          fontSize: 18,
+          top: 20,
+          left: LAYOUT_SAFE_MARGIN.x,
+          fontSize: 16,
           color: colors.textMuted,
         }}
       >
@@ -221,21 +235,21 @@ const LeftPanel: React.FC<{
   fps: number;
   activeRound: number;
   timeline: typeof TIMELINE;
-}> = ({ frame, fps, activeRound, timeline }) => {
+}> = ({ activeRound }) => {
   const roundData = ROUNDS[activeRound];
 
   return (
     <div
       style={{
-        position: 'absolute',
-        left: 50,
-        top: 80,
-        width: 520,
-        bottom: 100,
+        flex: 1,
+        minWidth: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
       {/* 循环图 */}
-      <div style={{ marginBottom: 30 }}>
+      <div style={{ marginBottom: LAYOUT_GAP.sm, flexShrink: 0 }}>
         <CycleDiagram
           highlightedStep={roundData?.step ?? 0}
           showExit={activeRound === 6}
@@ -248,8 +262,9 @@ const LeftPanel: React.FC<{
         style={{
           display: 'flex',
           gap: 6,
-          marginBottom: 24,
+          marginBottom: LAYOUT_GAP.sm,
           flexWrap: 'wrap',
+          flexShrink: 0,
         }}
       >
         {ROUNDS.map((round, i) => {
@@ -291,7 +306,7 @@ const LeftPanel: React.FC<{
         })}
       </div>
 
-      {/* 时间轴连接 */}
+      {/* 时间轴 */}
       <TimelineView activeRound={activeRound} />
     </div>
   );
@@ -302,9 +317,11 @@ const TimelineView: React.FC<{ activeRound: number }> = ({ activeRound }) => {
   return (
     <div
       style={{
+        flex: 1,
+        minHeight: 0,
         backgroundColor: colors.backgroundCard,
         borderRadius: 12,
-        padding: 16,
+        padding: LAYOUT_GAP.sm,
         border: `1px solid ${colors.border}`,
       }}
     >
@@ -312,13 +329,13 @@ const TimelineView: React.FC<{ activeRound: number }> = ({ activeRound }) => {
         style={{
           fontSize: 13,
           color: colors.textMuted,
-          marginBottom: 12,
+          marginBottom: 8,
           fontFamily: "'Fira Code', monospace",
         }}
       >
         执行时间轴
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {ROUNDS.slice(0, Math.min(activeRound + 2, ROUNDS.length)).map((round, i) => {
           const isCurrent = i === activeRound;
           const isPast = i < activeRound;
@@ -331,8 +348,8 @@ const TimelineView: React.FC<{ activeRound: number }> = ({ activeRound }) => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 10,
-                padding: '8px 12px',
+                gap: 8,
+                padding: '6px 10px',
                 backgroundColor: isCurrent ? `${colors.primary}15` : 'transparent',
                 borderRadius: 6,
                 borderLeft: `3px solid ${
@@ -410,16 +427,13 @@ const RightPanel: React.FC<{
   return (
     <div
       style={{
-        position: 'absolute',
-        right: 50,
-        top: 80,
-        width: 600,
-        bottom: 100,
+        flex: 1,
+        minWidth: 0,
         opacity: enterSpring,
         transform: `translateX(${(1 - enterSpring) * 40}px)`,
         display: 'flex',
         flexDirection: 'column',
-        gap: 20,
+        gap: LAYOUT_GAP.sm,
       }}
     >
       {/* 轮次标题 */}
@@ -472,7 +486,7 @@ const LLMThinking: React.FC<{
         backgroundColor: bgColor,
         borderRadius: 12,
         border: `2px solid ${borderColor}50`,
-        padding: 20,
+        padding: LAYOUT_GAP.sm,
       }}
     >
       <div
@@ -480,7 +494,7 @@ const LLMThinking: React.FC<{
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          marginBottom: 12,
+          marginBottom: 8,
         }}
       >
         <span style={{ fontSize: 18 }}>{icon}</span>
@@ -497,9 +511,9 @@ const LLMThinking: React.FC<{
       </div>
       <div
         style={{
-          fontSize: 16,
+          fontSize: 15,
           color: colors.text,
-          lineHeight: 1.7,
+          lineHeight: 1.6,
         }}
       >
         {thinking}
@@ -516,14 +530,16 @@ const ToolCallCard: React.FC<{
   return (
     <div
       style={{
+        flex: 1,
+        minHeight: 0,
         backgroundColor: colors.backgroundCard,
-        borderRadius: 16,
+        borderRadius: 12,
         border: `2px solid ${statusColor}50`,
-        padding: 24,
+        padding: LAYOUT_GAP.sm,
         boxShadow: `0 0 30px ${statusColor}15`,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <span style={{ fontSize: 14, color: colors.textMuted }}>Tool Call</span>
         <span
           style={{
@@ -540,12 +556,12 @@ const ToolCallCard: React.FC<{
       <div
         style={{
           backgroundColor: 'rgba(15, 15, 26, 0.6)',
-          borderRadius: 10,
-          padding: '16px 20px',
+          borderRadius: 8,
+          padding: '12px 14px',
           fontFamily: "'Fira Code', monospace",
-          fontSize: 16,
+          fontSize: 15,
           color: colors.text,
-          marginBottom: 16,
+          marginBottom: 12,
           border: `1px solid ${colors.border}`,
         }}
       >
@@ -556,8 +572,8 @@ const ToolCallCard: React.FC<{
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 10,
-          padding: '12px 16px',
+          gap: 8,
+          padding: '10px 12px',
           backgroundColor: `${statusColor}10`,
           borderRadius: 8,
           borderLeft: `4px solid ${statusColor}`,
@@ -573,9 +589,9 @@ const ToolCallCard: React.FC<{
       {round.isFinal && (
         <div
           style={{
-            marginTop: 16,
+            marginTop: 12,
             textAlign: 'center',
-            padding: '12px',
+            padding: '10px',
             backgroundColor: `${colors.success}15`,
             borderRadius: 8,
             border: `2px solid ${colors.success}`,
@@ -620,16 +636,13 @@ const ComparisonView: React.FC<{
   return (
     <div
       style={{
-        position: 'absolute',
-        right: 50,
-        top: 80,
-        width: 600,
-        bottom: 100,
+        flex: 1,
+        minWidth: 0,
         opacity: enterSpring,
         transform: `translateX(${(1 - enterSpring) * 40}px)`,
         display: 'flex',
         flexDirection: 'column',
-        gap: 16,
+        gap: LAYOUT_GAP.sm,
       }}
     >
       {/* 标题 */}
@@ -637,8 +650,8 @@ const ComparisonView: React.FC<{
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 12,
-          padding: '8px 16px',
+          gap: 10,
+          padding: '6px 12px',
           backgroundColor: `${colors.accent}15`,
           borderRadius: 8,
           border: `1px solid ${colors.accent}`,
@@ -651,15 +664,16 @@ const ComparisonView: React.FC<{
       </div>
 
       {/* 分屏对比 */}
-      <div style={{ display: 'flex', gap: 16, flex: 1 }}>
+      <div style={{ display: 'flex', gap: LAYOUT_GAP.sm, flex: 1, minHeight: 0 }}>
         {/* 左侧：OS-level */}
         <div
           style={{
             flex: 1,
+            minWidth: 0,
             backgroundColor: `${colors.success}10`,
             borderRadius: 12,
             border: `2px solid ${colors.success}`,
-            padding: 16,
+            padding: LAYOUT_GAP.sm,
             opacity: leftProgress,
             transform: `translateY(${(1 - leftProgress) * 20}px)`,
           }}
@@ -669,10 +683,10 @@ const ComparisonView: React.FC<{
               fontSize: 14,
               fontWeight: 700,
               color: colors.success,
-              marginBottom: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
+            marginBottom: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
             }}
           >
             <span>✓</span>
@@ -683,11 +697,11 @@ const ComparisonView: React.FC<{
             style={{
               backgroundColor: 'rgba(15, 15, 26, 0.6)',
               borderRadius: 8,
-              padding: 12,
+              padding: 10,
               fontFamily: "'Fira Code', monospace",
               fontSize: 13,
               color: colors.text,
-              marginBottom: 12,
+              marginBottom: 8,
             }}
           >
             read_file("~/research/notes/...")
@@ -695,7 +709,7 @@ const ComparisonView: React.FC<{
 
           <div
             style={{
-              padding: 10,
+              padding: 8,
               backgroundColor: `${colors.success}15`,
               borderRadius: 6,
               fontSize: 13,
@@ -707,7 +721,7 @@ const ComparisonView: React.FC<{
 
           <div
             style={{
-              marginTop: 12,
+              marginTop: 8,
               fontSize: 12,
               color: colors.textMuted,
               lineHeight: 1.5,
@@ -723,10 +737,11 @@ const ComparisonView: React.FC<{
         <div
           style={{
             flex: 1,
+            minWidth: 0,
             backgroundColor: `${colors.error}10`,
             borderRadius: 12,
             border: `2px solid ${colors.error}`,
-            padding: 16,
+            padding: LAYOUT_GAP.sm,
             opacity: rightProgress,
             transform: `translateY(${(1 - rightProgress) * 20}px)`,
           }}
@@ -736,10 +751,10 @@ const ComparisonView: React.FC<{
               fontSize: 14,
               fontWeight: 700,
               color: colors.error,
-              marginBottom: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
+            marginBottom: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
             }}
           >
             <span>✗</span>
@@ -750,11 +765,11 @@ const ComparisonView: React.FC<{
             style={{
               backgroundColor: 'rgba(15, 15, 26, 0.6)',
               borderRadius: 8,
-              padding: 12,
+              padding: 10,
               fontFamily: "'Fira Code', monospace",
               fontSize: 13,
               color: colors.textMuted,
-              marginBottom: 12,
+              marginBottom: 8,
               textDecoration: 'line-through',
             }}
           >
@@ -763,7 +778,7 @@ const ComparisonView: React.FC<{
 
           <div
             style={{
-              padding: 10,
+              padding: 8,
               backgroundColor: `${colors.error}15`,
               borderRadius: 6,
               fontSize: 13,
@@ -775,7 +790,7 @@ const ComparisonView: React.FC<{
 
           <div
             style={{
-              marginTop: 12,
+              marginTop: 8,
               fontSize: 12,
               color: colors.textMuted,
               lineHeight: 1.5,

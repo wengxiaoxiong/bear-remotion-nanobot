@@ -33,3 +33,28 @@ export const SPRING_PRESETS = {
   soft: { damping: 20, stiffness: 170, mass: 0.9 },
   emphasis: { damping: 16, stiffness: 190, mass: 0.85 },
 } as const;
+
+export const LAYOUT_SAFE_MARGIN = {
+  x: 84,
+  top: 56,
+  bottom: 72,
+} as const;
+
+export const LAYOUT_GAP = {
+  xs: 8,
+  sm: 14,
+  md: 24,
+  lg: 40,
+  xl: 64,
+} as const;
+
+export const LAYOUT_BANDS = {
+  top: { top: 48, height: 130 },
+  main: { top: 170, bottom: 150 },
+  bottom: { bottom: 56, height: 96 },
+} as const;
+
+export const TEXT_CONTRAST_PRESETS = {
+  captionStrong: { opacity: 0.88, weight: 500 },
+  captionMuted: { opacity: 0.74, weight: 400 },
+} as const;

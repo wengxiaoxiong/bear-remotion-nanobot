@@ -21,6 +21,8 @@ interface CycleDiagramProps {
   showExit?: boolean;
   progress?: number;
   animateFlow?: boolean;
+  maxWidth?: number;
+  minWidth?: number;
   style?: React.CSSProperties;
 }
 
@@ -29,6 +31,8 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
   showExit = true,
   progress = 1,
   animateFlow = false,
+  maxWidth = 700,
+  minWidth = 520,
   style,
 }) => {
   const frame = useCurrentFrame();
@@ -43,7 +47,7 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
   const flowIndex = animateFlow ? Math.floor((frame / 36) % 3) : -1;
 
   // 放大到 700x620 以填满画面
-  const W = 700;
+  const W = maxWidth;
   const H = 620;
   const cx = W / 2;
   const cy = 260;
@@ -58,11 +62,19 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
 
   const nodeW = 200;
   const nodeH = 88;
+  const exitLineStartX = positions[1].x + nodeW / 2 + 8;
+  const isCompactExit = W <= 680;
+  const exitLineEndX = Math.min(
+    exitLineStartX + (isCompactExit ? 56 : 92),
+    W - (isCompactExit ? 26 : 18),
+  );
 
   return (
     <div
       style={{
         width: W,
+        maxWidth: '100%',
+        minWidth,
         height: H,
         position: 'relative',
         opacity: enterSpring * progress,
@@ -118,9 +130,9 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
 
         {showExit && (
           <line
-            x1={positions[1].x + nodeW / 2 + 10}
+            x1={exitLineStartX}
             y1={positions[1].y}
-            x2={positions[1].x + nodeW / 2 + 120}
+            x2={exitLineEndX}
             y2={positions[1].y}
             stroke={colors.success}
             strokeWidth={3}
@@ -203,13 +215,18 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
         <div
           style={{
             position: 'absolute',
-            left: positions[1].x + nodeW / 2 + 130,
-            top: positions[1].y - 28,
-            fontSize: 20,
+            right: isCompactExit ? 18 : 12,
+            top: isCompactExit
+              ? positions[1].y + nodeH / 2 + 10
+              : positions[1].y - 28,
+            fontSize: isCompactExit ? 17 : 20,
             color: colors.success,
             fontFamily: fontStack,
-            whiteSpace: 'nowrap',
+            whiteSpace: isCompactExit ? 'normal' : 'nowrap',
+            lineHeight: isCompactExit ? 1.25 : 1.2,
             fontWeight: 600,
+            textAlign: 'right',
+            maxWidth: isCompactExit ? 120 : 'none',
           }}
         >
           做完了

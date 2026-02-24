@@ -20,14 +20,22 @@ const PIPELINE_LAYERS = [
 interface PipelineDiagramProps {
   highlightedLayer?: number;
   pulseLayer?: number;
+  flowStrength?: 'off' | 'subtle';
   opacity?: number;
+  maxWidth?: number;
+  minWidth?: number;
+  contentPadding?: string;
   style?: React.CSSProperties;
 }
 
 export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
   highlightedLayer = -1,
   pulseLayer = -1,
+  flowStrength = 'subtle',
   opacity = 1,
+  maxWidth = 480,
+  minWidth = 360,
+  contentPadding = '0 28px',
   style,
 }) => {
   const frame = useCurrentFrame();
@@ -38,6 +46,8 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
     fps,
     config: SPRING_PRESETS.soft,
   });
+  const flowOffset = flowStrength === 'off' ? 0 : -((frame % 90) / 90) * 24;
+  const flowOpacity = flowStrength === 'off' ? 0.58 : 0.82;
 
   return (
     <div
@@ -47,7 +57,9 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
         gap: 10,
         opacity: opacity * enterProgress,
         transform: `scale(${0.9 + enterProgress * 0.1})`,
-        width: 480,
+        width: '100%',
+        maxWidth,
+        minWidth,
         ...style,
       }}
     >
@@ -75,7 +87,7 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
                 border: `2px solid ${isHighlighted || isPulsing ? layer.color : colors.border}`,
                 display: 'flex',
                 alignItems: 'center',
-                padding: '0 28px',
+                padding: contentPadding,
                 gap: 16,
                 opacity: layerOpacity,
                 transform: `scale(${pulseScale})`,
@@ -109,10 +121,24 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
                 style={{
                   display: 'flex',
                   justifyContent: 'center',
+                  alignItems: 'center',
                   opacity: layerOpacity,
+                  height: 26,
                 }}
               >
-                <span style={{ color: colors.textDark, fontSize: 24 }}>▼</span>
+                <div
+                  style={{
+                    width: 26,
+                    height: 16,
+                    backgroundImage:
+                      'repeating-linear-gradient(90deg, transparent 0 4px, currentColor 4px 10px, transparent 10px 14px)',
+                    color: colors.primaryLight,
+                    transform: 'rotate(90deg)',
+                    backgroundPositionX: `${flowOffset}px`,
+                    opacity: flowOpacity,
+                    borderRadius: 3,
+                  }}
+                />
               </div>
             )}
           </React.Fragment>

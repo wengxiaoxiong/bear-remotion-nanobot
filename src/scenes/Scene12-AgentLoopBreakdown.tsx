@@ -27,7 +27,15 @@ import { CodeBlock } from '../components/CodeBlock';
 import { ToolCallBox } from '../components/ToolCallBox';
 import { BranchNode } from '../components/BranchNode';
 import { ComparisonPanel } from '../components/ComparisonPanel';
-import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
+import {
+  LAYOUT_BANDS,
+  LAYOUT_GAP,
+  LAYOUT_SAFE_MARGIN,
+  MOTION_DURATION,
+  MOTION_EASING,
+  MOTION_STAGGER,
+  SPRING_PRESETS,
+} from '../lib/motion';
 
 const AGENT_LOOP_CODE = `async function agent_loop(messages, tools):
   while iteration < max_iterations:
@@ -82,7 +90,7 @@ export const Scene12AgentLoopBreakdown: React.FC = () => {
       }}
     >
       {/* 左上角标题 */}
-      <div style={{ position: 'absolute', left: 60, top: 50 }}>
+      <div style={{ position: 'absolute', left: LAYOUT_SAFE_MARGIN.x, top: LAYOUT_BANDS.top.top }}>
         <span style={{ color: colors.textMuted, fontSize: 22 }}>Part 1B</span>
         <br />
         <span style={{ color: colors.text, fontSize: 34, fontWeight: 700 }}>
@@ -153,6 +161,8 @@ const PhaseMotion: React.FC<{
   children: React.ReactNode;
 }> = ({ durationInFrames, enterFromX, exitToX, children }) => {
   const frame = useCurrentFrame();
+  const boundedEnter = Math.sign(enterFromX) * Math.min(Math.abs(enterFromX), 64);
+  const boundedExit = Math.sign(exitToX) * Math.min(Math.abs(exitToX), 72);
 
   const enterProgress = interpolate(frame, [0, 18], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -166,7 +176,7 @@ const PhaseMotion: React.FC<{
   });
 
   const opacity = Math.min(enterProgress, 1 - exitProgress);
-  const translateX = Math.round((1 - enterProgress) * enterFromX + exitProgress * exitToX);
+  const translateX = Math.round((1 - enterProgress) * boundedEnter + exitProgress * boundedExit);
   const translateY = Math.round((1 - enterProgress) * 8 - exitProgress * 6);
 
   return (
@@ -322,16 +332,16 @@ const Phase3ToolsExplained: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        display: 'flex',
-        flexDirection: 'row',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 86,
-        padding: '0 110px 70px',
+        gap: LAYOUT_GAP.xl,
+        padding: `0 ${LAYOUT_SAFE_MARGIN.x}px ${LAYOUT_SAFE_MARGIN.bottom}px`,
       }}
     >
       {/* 左侧：工具清单 */}
-      <div style={{ width: 500, alignSelf: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 560, justifySelf: 'end', alignSelf: 'center' }}>
         <div style={{ fontSize: 34, color: colors.textMuted, marginBottom: 18 }}>
           工具 = Agent 的「手」
         </div>
@@ -386,7 +396,7 @@ const Phase3ToolsExplained: React.FC = () => {
       </div>
 
       {/* 右侧：tool call 示例 */}
-      <div style={{ width: 640, alignSelf: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 680, justifySelf: 'start', alignSelf: 'center' }}>
         <div style={{ fontSize: 34, color: colors.textMuted, marginBottom: 18 }}>
           tool_call 示例
         </div>
@@ -397,6 +407,8 @@ const Phase3ToolsExplained: React.FC = () => {
           showResult={frame > 80}
           resultStatus="success"
           enterDelay={30}
+          maxWidth={680}
+          minWidth={560}
         />
         <div
           style={{
@@ -525,7 +537,8 @@ const Phase5LoopBack: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 300,
         gap: 46,
       }}
     >

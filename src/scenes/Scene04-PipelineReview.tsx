@@ -13,7 +13,15 @@ import { fontStack } from '../lib/fonts';
 import { PipelineDiagram } from '../components/PipelineDiagram';
 import { CycleDiagram } from '../components/CycleDiagram';
 import { FadeIn } from '../components/FadeIn';
-import { MOTION_DURATION, MOTION_EASING, MOTION_STAGGER, SPRING_PRESETS } from '../lib/motion';
+import {
+  LAYOUT_BANDS,
+  LAYOUT_GAP,
+  LAYOUT_SAFE_MARGIN,
+  MOTION_DURATION,
+  MOTION_EASING,
+  MOTION_STAGGER,
+  SPRING_PRESETS,
+} from '../lib/motion';
 
 export const Scene04PipelineReview: React.FC = () => {
   const frame = useCurrentFrame();
@@ -43,7 +51,7 @@ export const Scene04PipelineReview: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          top: 48,
+          top: LAYOUT_BANDS.top.top,
           left: 0,
           right: 0,
           textAlign: 'center',
@@ -69,20 +77,25 @@ export const Scene04PipelineReview: React.FC = () => {
       <div
         style={{
           position: 'absolute',
-          top: 170,
-          left: 0,
-          right: 0,
-          bottom: 120,
-          display: 'flex',
+          top: LAYOUT_BANDS.main.top,
+          left: LAYOUT_SAFE_MARGIN.x,
+          right: LAYOUT_SAFE_MARGIN.x,
+          bottom: LAYOUT_BANDS.main.bottom,
+          display: 'grid',
+          gridTemplateColumns: '42% 16% 42%',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: 56,
+          columnGap: LAYOUT_GAP.md,
+          maxWidth: 1520,
+          margin: '0 auto',
         }}
       >
         {/* 管线图 */}
         <PipelineDiagram
           highlightedLayer={2}
-          style={{ width: 560, flexShrink: 0 }}
+          flowStrength="subtle"
+          maxWidth={620}
+          minWidth={460}
+          style={{ width: '100%', justifySelf: 'center' }}
         />
 
         {/* 连接箭头 */}
@@ -100,12 +113,13 @@ export const Scene04PipelineReview: React.FC = () => {
             style={{
               width: 96,
               height: 4,
-              backgroundColor: colors.accent,
+              backgroundColor: colors.primaryLight,
               borderRadius: 2,
+              boxShadow: `0 0 14px ${colors.primaryLight}55`,
             }}
           />
-          <span style={{ color: colors.accent, fontSize: 44 }}>→</span>
-          <span style={{ fontSize: 24, color: colors.textDark }}>展开</span>
+          <span style={{ color: colors.primaryLight, fontSize: 44 }}>→</span>
+          <span style={{ fontSize: 24, color: colors.text, opacity: 0.86 }}>展开</span>
         </div>
 
         {/* 循环图 */}
@@ -113,14 +127,16 @@ export const Scene04PipelineReview: React.FC = () => {
           style={{
             opacity: cycleSpring,
             transform: `translate3d(${Math.round((1 - cycleSpring) * 24)}px, 0, 0)`,
-            flexShrink: 0,
+            justifySelf: 'center',
           }}
         >
           <CycleDiagram
             highlightedStep={-1}
             showExit={true}
             animateFlow={frame > 40}
-            style={{ transform: 'scale(1.12)', transformOrigin: 'center center' }}
+            maxWidth={640}
+            minWidth={500}
+            style={{ transform: 'scale(1.03)', transformOrigin: 'center center' }}
           />
         </div>
       </div>
@@ -131,7 +147,7 @@ export const Scene04PipelineReview: React.FC = () => {
             position: 'absolute',
             left: 0,
             right: 0,
-            bottom: 52,
+            bottom: LAYOUT_BANDS.bottom.bottom,
             textAlign: 'center',
             fontSize: 32,
             color: colors.textMuted,
