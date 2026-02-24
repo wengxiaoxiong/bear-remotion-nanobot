@@ -21,14 +21,14 @@ export const DEFAULT_DURATIONS: Record<string, number> = {
 
   // Part 2: 为什么是 OS-level Agent？ (5:30-7:20)
   'Scene18-ToolsWhere': 300,
-  'Scene19-OSLevelVsCloud': 2100,
+  'Scene19-OSLevelVsCloud': 1200,  // 40s (优化版，压缩时长)
   'Scene21-ToolsShowcase': 600,
   'Scene22-DeliveryNotChat': 300,
 
   // Part 3: 完整走一遍——从调研到交付 (7:20-9:35)
   'Scene23-CaseIntro': 540,
-  'Scene24-ContextWithMemory': 900,
-  'Scene26-SevenRounds': 2610,
+  'Scene24-ContextWithMemory': 1200,  // 40s (优化版，增加记忆驱动决策演示)
+  'Scene26-SevenRounds': 3000,  // 100s (重构版，增加LLM思考过程)
   'Scene33-CaseReview': 450,
 
   // Part 4: 总结与下集预告 (9:50-10:30)

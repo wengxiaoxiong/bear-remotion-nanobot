@@ -3,20 +3,18 @@
  */
 
 import React from 'react';
-import { Audio, staticFile, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
+import { Audio, staticFile } from 'remotion';
 
 interface AudioSceneProps {
   sceneId: string;
   children: React.ReactNode;
-  fadeIn?: boolean;
-  fadeOut?: boolean;
+  _fadeIn?: boolean;
+  _fadeOut?: boolean;
 }
 
 export const AudioScene: React.FC<AudioSceneProps> = ({
   sceneId,
   children,
-  fadeIn = true,
-  fadeOut = true,
 }) => {
   const audioSrc = staticFile(`audio/${sceneId}.mp3`);
   
