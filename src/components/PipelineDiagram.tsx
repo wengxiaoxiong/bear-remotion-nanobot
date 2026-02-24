@@ -46,8 +46,10 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
     fps,
     config: SPRING_PRESETS.soft,
   });
-  const flowOffset = flowStrength === 'off' ? 0 : -((frame % 90) / 90) * 24;
-  const flowOpacity = flowStrength === 'off' ? 0.58 : 0.82;
+  // Enhanced flowing animation with smoother easing
+  const flowCycle = (frame % 60) / 60;
+  const flowOffset = flowStrength === 'off' ? 0 : -flowCycle * 20;
+  const flowOpacity = flowStrength === 'off' ? 0.58 : 0.75 + Math.sin(frame * 0.1) * 0.15;
 
   return (
     <div
@@ -69,11 +71,14 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
         const layerOpacity = highlightedLayer >= 0 && !isHighlighted ? 0.45 : 1;
 
         const pulseScale = isPulsing
-          ? 1 + Math.sin(frame * 0.09) * 0.025
+          ? 1 + Math.sin(frame * 0.12) * 0.03
           : 1;
         const pulseGlow = isPulsing
-          ? 8 + Math.sin(frame * 0.09) * 6
+          ? 12 + Math.sin(frame * 0.12) * 8
           : 0;
+        const pulseBorderWidth = isPulsing
+          ? 2 + Math.sin(frame * 0.12) * 1
+          : 2;
 
         return (
           <React.Fragment key={i}>
@@ -84,7 +89,7 @@ export const PipelineDiagram: React.FC<PipelineDiagramProps> = ({
                 backgroundColor: isHighlighted || isPulsing
                   ? `${layer.color}30`
                   : 'rgba(22, 22, 42, 0.6)',
-                border: `2px solid ${isHighlighted || isPulsing ? layer.color : colors.border}`,
+                border: `${pulseBorderWidth}px solid ${isHighlighted || isPulsing ? layer.color : colors.border}`,
                 display: 'flex',
                 alignItems: 'center',
                 padding: contentPadding,

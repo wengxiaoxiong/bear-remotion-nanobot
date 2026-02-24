@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, Easing, interpolate } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { PipelineDiagram } from '../components/PipelineDiagram';
@@ -65,7 +65,7 @@ export const Scene02AgentLoopHighlight: React.FC = () => {
         <div
           style={{
             opacity: noteSpring,
-            transform: `translateY(${(1 - noteSpring) * 20}px)`,
+            transform: `translateY(${(1 - noteSpring) * 30}px) scale(${0.9 + noteSpring * 0.1})`,
             textAlign: 'center',
           }}
         >
@@ -74,6 +74,8 @@ export const Scene02AgentLoopHighlight: React.FC = () => {
               fontSize: 72,
               fontWeight: 800,
               color: colors.accent,
+              textShadow: `0 0 ${20 + Math.sin(frame * 0.15) * 10}px ${colors.accent}60`,
+              letterSpacing: 4,
             }}
           >
             其实是核心

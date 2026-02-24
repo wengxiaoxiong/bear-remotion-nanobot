@@ -38,7 +38,10 @@ export const Scene04PipelineReview: React.FC = () => {
     extrapolateRight: 'clamp',
     easing: MOTION_EASING.standard,
   });
-  const arrowY = Math.round((1 - arrowOpacity) * 12);
+  const arrowY = Math.round((1 - arrowOpacity) * 16);
+  
+  // Arrow breathing animation
+  const arrowBreathing = 1 + Math.sin(frame * 0.1) * 0.05;
 
   return (
     <AbsoluteFill
@@ -106,7 +109,7 @@ export const Scene04PipelineReview: React.FC = () => {
             alignItems: 'center',
             gap: 10,
             opacity: arrowOpacity,
-            transform: `translate3d(0, ${arrowY}px, 0)`,
+            transform: `translate3d(0, ${arrowY}px, 0) scale(${arrowBreathing})`,
           }}
         >
           <div
