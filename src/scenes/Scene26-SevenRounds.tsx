@@ -26,6 +26,7 @@ import {
   useVideoConfig,
   interpolate,
   spring,
+  Easing,
 } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
@@ -463,7 +464,7 @@ const RightPanel: React.FC<{
       </div>
 
       {/* LLM思考区域 */}
-      <LLMThinking thinking={round.thinking} status={round.status} />
+      <LLMThinking thinking={round.thinking} status={round.status} frame={frame - roundStart} />
 
       {/* 工具调用卡片 */}
       <ToolCallCard round={round} statusColor={statusColor} />
@@ -475,18 +476,31 @@ const RightPanel: React.FC<{
 const LLMThinking: React.FC<{
   thinking: string;
   status: 'success' | 'error' | 'pending';
-}> = ({ thinking, status }) => {
+  frame?: number;
+}> = ({ thinking, status, frame = 0 }) => {
   const borderColor = status === 'error' ? colors.error : colors.accent;
   const bgColor = status === 'error' ? `${colors.error}10` : `${colors.accent}10`;
   const icon = status === 'error' ? '💭' : '💡';
+
+  // Typewriter effect
+  const charsToShow = Math.min(
+    thinking.length,
+    Math.floor(interpolate(frame, [0, 90], [0, thinking.length], { extrapolateRight: 'clamp' }))
+  );
+  const displayText = thinking.slice(0, charsToShow);
+  const isTyping = charsToShow < thinking.length;
+
+  // Glow breathing effect
+  const glowIntensity = 0.5 + Math.sin(frame * 0.1) * 0.2;
 
   return (
     <div
       style={{
         backgroundColor: bgColor,
         borderRadius: 12,
-        border: `2px solid ${borderColor}50`,
+        border: `2px solid ${borderColor}${Math.floor(glowIntensity * 80).toString(16).padStart(2, '0')}`,
         padding: LAYOUT_GAP.sm,
+        boxShadow: `0 0 ${20 + Math.sin(frame * 0.08) * 10}px ${borderColor}${Math.floor(glowIntensity * 40).toString(16).padStart(2, '0')}`,
       }}
     >
       <div
@@ -497,7 +511,7 @@ const LLMThinking: React.FC<{
           marginBottom: 8,
         }}
       >
-        <span style={{ fontSize: 18 }}>{icon}</span>
+        <span style={{ fontSize: 18, opacity: 0.8 + Math.sin(frame * 0.12) * 0.2 }}>{icon}</span>
         <span
           style={{
             fontSize: 14,
@@ -514,9 +528,16 @@ const LLMThinking: React.FC<{
           fontSize: 15,
           color: colors.text,
           lineHeight: 1.6,
+          minHeight: '3em',
         }}
       >
-        {thinking}
+        {displayText}
+        {isTyping && (
+          <span style={{ 
+            opacity: 0.7 + Math.sin(frame * 0.3) * 0.3,
+            color: borderColor,
+          }}>▋</span>
+        )}
       </div>
     </div>
   );
