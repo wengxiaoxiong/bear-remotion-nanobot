@@ -11,6 +11,7 @@ import {
   useVideoConfig,
   interpolate,
   spring,
+  Easing,
 } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
@@ -121,13 +122,11 @@ export const Scene33CaseReview: React.FC = () => {
                     justifyContent: 'center',
                     fontSize: 32,
                     boxShadow: isError
-                      ? `0 0 30px ${colors.error}50`
+                      ? `0 0 ${30 + Math.sin(frame * 0.2) * 10}px ${colors.error}${Math.floor((0.5 + Math.sin(frame * 0.2) * 0.2) * 80).toString(16).padStart(2, '0')}`
                       : isRetry
-                        ? `0 0 30px ${colors.success}50`
+                        ? `0 0 ${30 + Math.sin(frame * 0.15) * 10}px ${colors.success}${Math.floor((0.5 + Math.sin(frame * 0.15) * 0.2) * 80).toString(16).padStart(2, '0')}`
                         : 'none',
-                    animation: isError
-                      ? 'pulse 1s infinite'
-                      : undefined,
+                    transform: `scale(${1 + (isError || isRetry ? Math.sin(frame * 0.1) * 0.03 : 0)})`,
                   }}
                 >
                   {isError ? '✗' : '✓'}
