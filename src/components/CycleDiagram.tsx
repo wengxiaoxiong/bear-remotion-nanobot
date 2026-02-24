@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { useCurrentFrame, useVideoConfig, spring } from 'remotion';
+import { useCurrentFrame, useVideoConfig, spring, interpolate, Easing } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { SPRING_PRESETS } from '../lib/motion';
@@ -45,6 +45,10 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
   });
 
   const flowIndex = animateFlow ? Math.floor((frame / 36) % 3) : -1;
+
+  // Flowing dash animation for connecting lines
+  const dashOffset = animateFlow ? -(frame % 60) * 0.4 : 0;
+  const flowOpacity = animateFlow ? 0.7 + Math.sin(frame * 0.1) * 0.2 : 1;
 
   // 放大到 700x620 以填满画面
   const W = maxWidth;
@@ -112,7 +116,9 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
               stroke={colors.textDark}
               strokeWidth={2.5}
               strokeDasharray="8 5"
+              strokeDashoffset={dashOffset}
               markerEnd="url(#arrowhead)"
+              style={{ opacity: flowOpacity }}
             />
           );
         })}
