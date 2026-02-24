@@ -14,6 +14,7 @@ interface FadeInProps {
   direction?: 'up' | 'down' | 'left' | 'right' | 'none';
   distance?: number;
   blurFrom?: number;
+  scaleFrom?: number;
   style?: React.CSSProperties;
 }
 
@@ -25,6 +26,7 @@ export const FadeIn: React.FC<FadeInProps> = ({
   direction = 'up',
   distance = MOTION_OFFSET.yLg,
   blurFrom = 6,
+  scaleFrom = 1,
   style,
 }) => {
   const frame = useCurrentFrame();
@@ -37,18 +39,22 @@ export const FadeIn: React.FC<FadeInProps> = ({
 
   const getTransform = () => {
     const d = Math.round(distance * (1 - progress));
-    switch (direction) {
-      case 'up':
-        return `translate3d(0, ${d}px, 0)`;
-      case 'down':
-        return `translate3d(0, ${-d}px, 0)`;
-      case 'left':
-        return `translate3d(${d}px, 0, 0)`;
-      case 'right':
-        return `translate3d(${-d}px, 0, 0)`;
-      default:
-        return 'translate3d(0, 0, 0)';
-    }
+    const s = scaleFrom + (1 - scaleFrom) * progress;
+    const translate = (() => {
+      switch (direction) {
+        case 'up':
+          return `translate3d(0, ${d}px, 0)`;
+        case 'down':
+          return `translate3d(0, ${-d}px, 0)`;
+        case 'left':
+          return `translate3d(${d}px, 0, 0)`;
+        case 'right':
+          return `translate3d(${-d}px, 0, 0)`;
+        default:
+          return 'translate3d(0, 0, 0)';
+      }
+    })();
+    return `${translate} scale(${s})`;
   };
 
   return (
