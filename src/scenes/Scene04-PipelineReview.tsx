@@ -85,7 +85,7 @@ export const Scene04PipelineReview: React.FC = () => {
           right: LAYOUT_SAFE_MARGIN.x,
           bottom: LAYOUT_BANDS.main.bottom,
           display: 'grid',
-          gridTemplateColumns: '42% 16% 42%',
+          gridTemplateColumns: '34% 10% 52%',
           alignItems: 'center',
           columnGap: LAYOUT_GAP.md,
           maxWidth: 1520,
@@ -96,8 +96,8 @@ export const Scene04PipelineReview: React.FC = () => {
         <PipelineDiagram
           highlightedLayer={2}
           flowStrength="subtle"
-          maxWidth={620}
-          minWidth={460}
+          maxWidth={480}
+          minWidth={360}
           style={{ width: '100%', justifySelf: 'center' }}
         />
 

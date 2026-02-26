@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { useCurrentFrame, useVideoConfig, spring, interpolate, Easing } from 'remotion';
+import { useCurrentFrame, useVideoConfig, spring } from 'remotion';
 import { colors } from '../lib/utils';
 import { fontStack } from '../lib/fonts';
 import { SPRING_PRESETS } from '../lib/motion';
@@ -21,8 +21,6 @@ interface CycleDiagramProps {
   showExit?: boolean;
   progress?: number;
   animateFlow?: boolean;
-  maxWidth?: number;
-  minWidth?: number;
   style?: React.CSSProperties;
 }
 
@@ -31,8 +29,6 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
   showExit = true,
   progress = 1,
   animateFlow = false,
-  maxWidth = 700,
-  minWidth = 520,
   style,
 }) => {
   const frame = useCurrentFrame();
@@ -46,12 +42,8 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
 
   const flowIndex = animateFlow ? Math.floor((frame / 36) % 3) : -1;
 
-  // Flowing dash animation for connecting lines
-  const dashOffset = animateFlow ? -(frame % 60) * 0.4 : 0;
-  const flowOpacity = animateFlow ? 0.7 + Math.sin(frame * 0.1) * 0.2 : 1;
-
   // 放大到 700x620 以填满画面
-  const W = maxWidth;
+  const W = 700;
   const H = 620;
   const cx = W / 2;
   const cy = 260;
@@ -66,19 +58,11 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
 
   const nodeW = 200;
   const nodeH = 88;
-  const exitLineStartX = positions[1].x + nodeW / 2 + 8;
-  const isCompactExit = W <= 680;
-  const exitLineEndX = Math.min(
-    exitLineStartX + (isCompactExit ? 56 : 92),
-    W - (isCompactExit ? 26 : 18),
-  );
 
   return (
     <div
       style={{
         width: W,
-        maxWidth: '100%',
-        minWidth,
         height: H,
         position: 'relative',
         opacity: enterSpring * progress,
@@ -116,9 +100,7 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
               stroke={colors.textDark}
               strokeWidth={2.5}
               strokeDasharray="8 5"
-              strokeDashoffset={dashOffset}
               markerEnd="url(#arrowhead)"
-              style={{ opacity: flowOpacity }}
             />
           );
         })}
@@ -136,9 +118,9 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
 
         {showExit && (
           <line
-            x1={exitLineStartX}
+            x1={positions[1].x + nodeW / 2 + 10}
             y1={positions[1].y}
-            x2={exitLineEndX}
+            x2={positions[1].x + nodeW / 2 + 120}
             y2={positions[1].y}
             stroke={colors.success}
             strokeWidth={3}
@@ -221,18 +203,13 @@ export const CycleDiagram: React.FC<CycleDiagramProps> = ({
         <div
           style={{
             position: 'absolute',
-            right: isCompactExit ? 18 : 12,
-            top: isCompactExit
-              ? positions[1].y + nodeH / 2 + 10
-              : positions[1].y - 28,
-            fontSize: isCompactExit ? 17 : 20,
+            left: positions[1].x + nodeW / 2 + 130,
+            top: positions[1].y - 28,
+            fontSize: 20,
             color: colors.success,
             fontFamily: fontStack,
-            whiteSpace: isCompactExit ? 'normal' : 'nowrap',
-            lineHeight: isCompactExit ? 1.25 : 1.2,
+            whiteSpace: 'nowrap',
             fontWeight: 600,
-            textAlign: 'right',
-            maxWidth: isCompactExit ? 120 : 'none',
           }}
         >
           做完了
