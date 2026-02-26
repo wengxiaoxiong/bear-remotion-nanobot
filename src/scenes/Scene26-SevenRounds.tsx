@@ -258,55 +258,6 @@ const LeftPanel: React.FC<{
         />
       </div>
 
-      {/* 轮次指示器 */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 6,
-          marginBottom: LAYOUT_GAP.sm,
-          flexWrap: 'wrap',
-          flexShrink: 0,
-        }}
-      >
-        {ROUNDS.map((round, i) => {
-          const isActive = i === activeRound;
-          const isDone = i < activeRound;
-          const statusColor =
-            round.status === 'error' ? colors.error : colors.success;
-
-          return (
-            <div
-              key={i}
-              style={{
-                padding: '6px 12px',
-                borderRadius: 6,
-                backgroundColor: isActive
-                  ? `${colors.primary}30`
-                  : isDone
-                    ? `${statusColor}15`
-                    : colors.backgroundCard,
-                border: `2px solid ${
-                  isActive ? colors.primary : isDone ? statusColor : colors.border
-                }`,
-                fontSize: 13,
-                color: isActive ? colors.primary : isDone ? statusColor : colors.textDark,
-                fontFamily: "'Fira Code', monospace",
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              <span>R{round.round}</span>
-              {isDone && (
-                <span style={{ fontSize: 12 }}>
-                  {round.status === 'error' ? '✗' : '✓'}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
       {/* 时间轴 */}
       <TimelineView activeRound={activeRound} />
     </div>
@@ -340,6 +291,7 @@ const TimelineView: React.FC<{ activeRound: number }> = ({ activeRound }) => {
         {ROUNDS.slice(0, Math.min(activeRound + 2, ROUNDS.length)).map((round, i) => {
           const isCurrent = i === activeRound;
           const isPast = i < activeRound;
+          const isFuture = i > activeRound;
           const statusColor =
             round.status === 'error' ? colors.error : colors.success;
 
@@ -356,6 +308,7 @@ const TimelineView: React.FC<{ activeRound: number }> = ({ activeRound }) => {
                 borderLeft: `3px solid ${
                   isCurrent ? colors.primary : isPast ? statusColor : 'transparent'
                 }`,
+                opacity: isFuture ? 0.4 : 1,
               }}
             >
               <span
@@ -414,16 +367,16 @@ const RightPanel: React.FC<{
   const statusColor = STATUS_COLORS[round.status];
 
   // 如果是第5轮，显示分屏对比
-  if (isComparisonRound) {
-    return (
-      <ComparisonView
-        frame={frame}
-        fps={fps}
-        round={round}
-        roundStart={roundStart}
-      />
-    );
-  }
+  const content = isComparisonRound ? (
+    <ComparisonView
+      frame={frame}
+      fps={fps}
+      round={round}
+      roundStart={roundStart}
+    />
+  ) : (
+    <ToolCallCard round={round} statusColor={statusColor} />
+  );
 
   return (
     <div
@@ -463,11 +416,11 @@ const RightPanel: React.FC<{
         )}
       </div>
 
-      {/* LLM思考区域 */}
+      {/* LLM思考区域 - 保持位置固定 */}
       <LLMThinking thinking={round.thinking} status={round.status} frame={frame - roundStart} />
 
-      {/* 工具调用卡片 */}
-      <ToolCallCard round={round} statusColor={statusColor} />
+      {/* 动态内容区域 */}
+      {content}
     </div>
   );
 };
@@ -634,12 +587,6 @@ const ComparisonView: React.FC<{
   round: typeof ROUNDS[0];
   roundStart: number;
 }> = ({ frame, fps, round, roundStart }) => {
-  const enterSpring = spring({
-    frame: frame - roundStart,
-    fps,
-    config: { damping: 15, stiffness: 120 },
-  });
-
   const leftProgress = interpolate(
     frame,
     [roundStart + 80, roundStart + 180],
@@ -658,9 +605,7 @@ const ComparisonView: React.FC<{
     <div
       style={{
         flex: 1,
-        minWidth: 0,
-        opacity: enterSpring,
-        transform: `translateX(${(1 - enterSpring) * 40}px)`,
+        minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
         gap: LAYOUT_GAP.sm,
@@ -704,10 +649,10 @@ const ComparisonView: React.FC<{
               fontSize: 14,
               fontWeight: 700,
               color: colors.success,
-            marginBottom: 8,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
+              marginBottom: 8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
           >
             <span>✓</span>
@@ -772,10 +717,10 @@ const ComparisonView: React.FC<{
               fontSize: 14,
               fontWeight: 700,
               color: colors.error,
-            marginBottom: 8,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
+              marginBottom: 8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
           >
             <span>✗</span>
@@ -823,9 +768,6 @@ const ComparisonView: React.FC<{
           </div>
         </div>
       </div>
-
-      {/* LLM思考 */}
-      <LLMThinking thinking={round.thinking} status="success" />
     </div>
   );
 };

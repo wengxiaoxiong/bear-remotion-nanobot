@@ -138,7 +138,7 @@ const LayersView: React.FC<{
     <div
       style={{
         position: 'absolute',
-        left: 60,
+        left: '50%',
         top: 100,
         width: 550,
       }}
@@ -313,7 +313,8 @@ const SearchComparisonView: React.FC<{
     <div
       style={{
         position: 'absolute',
-        right: 60,
+        left: '50%',
+        marginLeft: -290, // Centered (width 580)
         top: 100,
         width: 580,
         opacity: enterSpring,
@@ -591,7 +592,7 @@ const LoopView: React.FC<{
       <div
         style={{
           position: 'absolute',
-          right: 100,
+          right: 700,
           top: '50%',
           transform: `translateY(-50%) translateX(${(1 - enterSpring) * 100}px)`,
           opacity: enterSpring,
