@@ -190,11 +190,11 @@ export const Scene26SevenRounds: React.FC = () => {
           inset: 0,
           paddingTop: LAYOUT_SAFE_MARGIN.top,
           paddingBottom: LAYOUT_SAFE_MARGIN.bottom,
-          paddingLeft: LAYOUT_SAFE_MARGIN.x,
-          paddingRight: LAYOUT_SAFE_MARGIN.x,
+          paddingLeft: LAYOUT_SAFE_MARGIN.x - 24,
+          paddingRight: LAYOUT_SAFE_MARGIN.x - 24,
           display: 'flex',
           flexDirection: 'row',
-          gap: LAYOUT_GAP.md,
+          gap: LAYOUT_GAP.sm,
           alignItems: 'stretch',
         }}
       >
@@ -242,7 +242,7 @@ const LeftPanel: React.FC<{
   return (
     <div
       style={{
-        flex: 1,
+        flex: '0 0 38%',
         minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
@@ -250,7 +250,7 @@ const LeftPanel: React.FC<{
       }}
     >
       {/* 循环图 */}
-      <div style={{ marginBottom: LAYOUT_GAP.sm, flexShrink: 0 }}>
+      <div style={{ marginBottom: 10, flexShrink: 0 }}>
         <CycleDiagram
           highlightedStep={roundData?.step ?? 0}
           showExit={activeRound === 6}
@@ -288,7 +288,7 @@ const TimelineView: React.FC<{ activeRound: number }> = ({ activeRound }) => {
         执行时间轴
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {ROUNDS.slice(0, Math.min(activeRound + 2, ROUNDS.length)).map((round, i) => {
+        {ROUNDS.slice(0, Math.min(activeRound + 1, ROUNDS.length)).map((round, i) => {
           const isCurrent = i === activeRound;
           const isPast = i < activeRound;
           const isFuture = i > activeRound;
@@ -387,7 +387,7 @@ const RightPanel: React.FC<{
         transform: `translateX(${(1 - enterSpring) * 40}px)`,
         display: 'flex',
         flexDirection: 'column',
-        gap: LAYOUT_GAP.sm,
+        gap: 12,
       }}
     >
       {/* 轮次标题 */}
@@ -452,7 +452,7 @@ const LLMThinking: React.FC<{
         backgroundColor: bgColor,
         borderRadius: 12,
         border: `2px solid ${borderColor}${Math.floor(glowIntensity * 80).toString(16).padStart(2, '0')}`,
-        padding: LAYOUT_GAP.sm,
+        padding: 12,
         boxShadow: `0 0 ${20 + Math.sin(frame * 0.08) * 10}px ${borderColor}${Math.floor(glowIntensity * 40).toString(16).padStart(2, '0')}`,
       }}
     >
@@ -509,7 +509,7 @@ const ToolCallCard: React.FC<{
         backgroundColor: colors.backgroundCard,
         borderRadius: 12,
         border: `2px solid ${statusColor}50`,
-        padding: LAYOUT_GAP.sm,
+        padding: 12,
         boxShadow: `0 0 30px ${statusColor}15`,
       }}
     >
@@ -608,7 +608,7 @@ const ComparisonView: React.FC<{
         minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
-        gap: LAYOUT_GAP.sm,
+        gap: 10,
       }}
     >
       {/* 标题 */}
@@ -630,7 +630,7 @@ const ComparisonView: React.FC<{
       </div>
 
       {/* 分屏对比 */}
-      <div style={{ display: 'flex', gap: LAYOUT_GAP.sm, flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'flex', gap: 10, flex: 1, minHeight: 0 }}>
         {/* 左侧：OS-level */}
         <div
           style={{
@@ -639,7 +639,7 @@ const ComparisonView: React.FC<{
             backgroundColor: `${colors.success}10`,
             borderRadius: 12,
             border: `2px solid ${colors.success}`,
-            padding: LAYOUT_GAP.sm,
+            padding: 10,
             opacity: leftProgress,
             transform: `translateY(${(1 - leftProgress) * 20}px)`,
           }}
@@ -905,6 +905,7 @@ const SummaryView: React.FC<{
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: 16,
+                    color: '#ffffff',
                   }}
                 >
                   {round.status === 'error' ? '✗' : '✓'}

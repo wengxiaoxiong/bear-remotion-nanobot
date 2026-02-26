@@ -121,6 +121,7 @@ export const Scene33CaseReview: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: 32,
+                    color: '#ffffff',
                     boxShadow: isError
                       ? `0 0 ${30 + Math.sin(frame * 0.2) * 10}px ${colors.error}${Math.floor((0.5 + Math.sin(frame * 0.2) * 0.2) * 80).toString(16).padStart(2, '0')}`
                       : isRetry
@@ -150,23 +151,7 @@ export const Scene33CaseReview: React.FC = () => {
                   {round.tool}
                 </div>
 
-                {/* 重试标注 */}
-                {isRetry && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      marginTop: -120,
-                      padding: '6px 12px',
-                      backgroundColor: `${colors.success}20`,
-                      borderRadius: 4,
-                      fontSize: 12,
-                      color: colors.success,
-                      fontWeight: 700,
-                    }}
-                  >
-                    自动重试
-                  </div>
-                )}
+                
               </div>
 
               {/* 连接线 */}

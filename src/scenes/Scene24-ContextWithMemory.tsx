@@ -138,7 +138,7 @@ const LayersView: React.FC<{
     <div
       style={{
         position: 'absolute',
-        left: '50%',
+        left: '35%',
         top: 100,
         width: 550,
       }}
@@ -624,7 +624,7 @@ const LoopView: React.FC<{
               ),
             }}
           >
-            <span style={{ fontSize: 20 }}>▶</span>
+            <span style={{ fontSize: 20, color: '#ffffff' }}>▶</span>
             <span style={{ fontSize: 22, fontWeight: 700, color: colors.accent }}>
               Agent Loop 开始运转
             </span>
