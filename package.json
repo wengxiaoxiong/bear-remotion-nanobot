@@ -1,0 +1,25 @@
+{
+  "name": "ep3-context-engineering",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/transitions": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^18.3.12",
+    "@types/web": "^0.0.166",
+    "iconv-lite": "^0.7.2",
+    "music-metadata": "^11.12.3",
+    "typescript": "^5.7.2"
+  }
+}
